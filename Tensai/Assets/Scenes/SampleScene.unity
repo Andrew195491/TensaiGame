@@ -271,9 +271,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1814243382}
     m_Modifications:
+    - target: {fileID: 1560680165527786275, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 58cd4a3eaebd60f41a4d5be8d7246b63, type: 2}
     - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: categoria
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1638,6 +1642,8 @@ MonoBehaviour:
     respuesta2: Inundaciones
     respuesta3: Tornados
     respuestaCorrecta: 2
+  benefits: []
+  penalty: []
   cartaUI: {fileID: 18534672}
   dadoController: {fileID: 696546689}
 --- !u!4 &942347877
@@ -2499,9 +2505,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1814243382}
     m_Modifications:
+    - target: {fileID: 1560680165527786275, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9875a245ac49007498213638a307faa1, type: 2}
     - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: categoria
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3442,7 +3452,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: categoria
-      value: 0
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: m_LocalPosition.x

@@ -3067,6 +3067,7 @@ GameObject:
   - component: {fileID: 1488697181}
   - component: {fileID: 1488697180}
   - component: {fileID: 1488697179}
+  - component: {fileID: 1488697183}
   m_Layer: 5
   m_Name: Game Zone
   m_TagString: Untagged
@@ -3164,6 +3165,30 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1488697183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488697178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec50a5e34954643b7813c9e1b91109d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  questionText: {fileID: 1040257273}
+  scoreText: {fileID: 973720918}
+  FinalScore: {fileID: 1694074855}
+  replyButtons:
+  - {fileID: 1254966889}
+  - {fileID: 1550231546}
+  - {fileID: 1437740423}
+  - {fileID: 253283610}
+  qtsData: {fileID: 11400000, guid: 3225f991f3f0942288149b11287056e0, type: 2}
+  Right: {fileID: 1079587813}
+  Wrong: {fileID: 489128837}
+  GameFinished: {fileID: 1217264315}
 --- !u!1 &1550231544
 GameObject:
   m_ObjectHideFlags: 0

@@ -53,26 +53,40 @@ public class MovePlayer : MonoBehaviour
 
     public IEnumerator JumpMultipleTimes(int cantidad)
     {
+        // Evita movimiento doble, en el caso de que se intenta llamar varias veces
         if (isMoving) yield break;
 
+        // Guarda la cantidad de pasos que se va a mover, se usa para saber cuántos pasos retroceder si se falla una pregunta.
         ultimaCantidadMovida = cantidad;
 
+        // Bucle que recorre casillas una por una
         for (int i = 0; i < cantidad; i++)
         {
             currentIndex = (currentIndex + 1) % tiles.Length;
             yield return JumpToTile(tiles[currentIndex].position);
         }
 
+        // Espera un poco antes de ejecutar la acción especial del saltoo de la casilla
         yield return new WaitForSeconds(0.5f);
 
+        // Verifica si la casilla actual, obteniendo el tile donde se ha caído el jugador, es una casilla especial
         Tile tile = tiles[currentIndex].GetComponent<Tile>();
         if (tile != null)
         {
-            CartaManager.instancia.MostrarCarta(tile.categoria, () =>
+            // Muestra la carta de la casilla especial 
+            if (tile.categoria == Tile.Categoria.neutral ||
+                tile.categoria == Tile.Categoria.Benefits ||
+                tile.categoria == Tile.Categoria.Penalty)
             {
-                StartCoroutine(Retroceder(ultimaCantidadMovida));
-            });
-
+                CartaManager.instancia.EjecutarAccionEspecial(tile.categoria, this);
+            }
+            else
+            {
+                CartaManager.instancia.MostrarCarta(tile.categoria, () =>
+                {
+                    StartCoroutine(Retroceder(ultimaCantidadMovida));
+                });
+            }
 
         }
     }
@@ -85,12 +99,12 @@ public class MovePlayer : MonoBehaviour
         }
     }
 
-    IEnumerator Retroceder(int pasos)
+    public IEnumerator Retroceder(int pasos)
     {
         if (isMoving) yield break;
 
         if (dado != null)
-            dado.BloquearDado(true); // 🔒 Bloqueamos el dado mientras retrocede
+            dado.BloquearDado(true);
 
         for (int i = 0; i < pasos; i++)
         {
@@ -99,7 +113,7 @@ public class MovePlayer : MonoBehaviour
         }
 
         if (dado != null)
-            dado.BloquearDado(false); // 🔓 Lo desbloqueamos al terminar
+            dado.BloquearDado(false);
     }
 
 

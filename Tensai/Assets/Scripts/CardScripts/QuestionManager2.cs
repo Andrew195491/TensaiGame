@@ -2,12 +2,12 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
 
 
 public class QuestionManager2 : MonoBehaviour
 {
-    public Text questionText;
+    public TextMeshProUGUI questionText;
     public Text scoreText;
     public Text FinalScore;
 
@@ -44,7 +44,7 @@ public class QuestionManager2 : MonoBehaviour
 
         for (int i = 0; i < replyButtons.Length; i++)
         {
-            replyButtons[i].GetComponentInChildren<Text>().text = qtsData.questions[questionIndex].replies[i];
+            replyButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = qtsData.questions[questionIndex].replies[i];
             int replyIndex = i;
             replyButtons[i].onClick.AddListener(() =>
             {

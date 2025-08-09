@@ -46,6 +46,35 @@ public class CartaUI : MonoBehaviour
         boton3.onClick.AddListener(() => { panel.SetActive(false); onRespuesta(3); });
     }
 
+    // Método para mostrar mensajes de las casillas especiales sin respuestas
+    public void MostrarMensajeEspecial(string mensaje, System.Action onCerrar)
+    {
+        panel.SetActive(true);
+
+        // Solo mostramos el mensaje, sin respuestas múltiples
+        textoPregunta.text = mensaje;
+        textoRespuesta1.text = "";
+        textoRespuesta2.text = "";
+        textoRespuesta3.text = "";
+
+        // Ocultar botones de respuestas 2 y 3 si quieres
+        boton2.gameObject.SetActive(false);
+        boton3.gameObject.SetActive(false);
+
+        // Botón 1 será solo "Aceptar"
+        boton1.GetComponentInChildren<TextMeshProUGUI>().text = "Aceptar";
+        boton1.onClick.RemoveAllListeners();
+        boton1.onClick.AddListener(() =>
+        {
+            panel.SetActive(false);
+            // Restauramos visibilidad para la próxima carta
+            boton2.gameObject.SetActive(true);
+            boton3.gameObject.SetActive(true);
+            onCerrar?.Invoke();
+        });
+    }
+
+
 
     void EvaluarRespuesta(int respuestaSeleccionada)
     {

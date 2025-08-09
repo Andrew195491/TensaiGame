@@ -6,8 +6,14 @@ public class Tile : MonoBehaviour
     {
         Historia,
         Geografia,
-        Ciencia
+        Ciencia,
+
+        // Casillas especiales 
+        neutral,
+        Benefits,
+        Penalty
     }
+    
     public Categoria categoria;
 
 }

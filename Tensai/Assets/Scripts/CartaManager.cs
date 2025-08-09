@@ -6,6 +6,11 @@ public class CartaManager : MonoBehaviour
     public List<Carta> historia;
     public List<Carta> geografia;
     public List<Carta> ciencia;
+
+    // Cartas especiales
+    public List<Carta> benefits;
+    public List<Carta> penalty;
+
     public CartaUI cartaUI;
 
     public static CartaManager instancia;
@@ -25,6 +30,9 @@ public class CartaManager : MonoBehaviour
             Tile.Categoria.Historia => historia,
             Tile.Categoria.Geografia => geografia,
             Tile.Categoria.Ciencia => ciencia,
+            Tile.Categoria.neutral => null, // No hay cartas para neutral
+            Tile.Categoria.Benefits => benefits, 
+            Tile.Categoria.Penalty => penalty,
             _ => null
         };
 
@@ -35,34 +43,66 @@ public class CartaManager : MonoBehaviour
         return lista[index];
     }
 
-    // ✅ AQUÍ LO USAMOS
-public void MostrarCarta(Tile.Categoria categoria, System.Action onRespuestaIncorrecta = null)
-{
-    Carta carta = ObtenerCartaAleatoria(categoria);
-
-    if (carta != null && cartaUI != null)
+    // Ejecucion de cartas especiales
+    public void EjecutarAccionEspecial(Tile.Categoria categoria, MovePlayer jugador)
     {
-        // Bloquear dado mientras se responde
-        if (dadoController != null)
-            dadoController.BloquearDado(true);
+        if (cartaUI == null) return;
 
-        cartaUI.MostrarCarta(carta, (int respuestaSeleccionada) =>
+        switch (categoria)
         {
-            bool esCorrecta = respuestaSeleccionada == carta.respuestaCorrecta;
-            Debug.Log(esCorrecta ? "✅ Respuesta correcta" : "❌ Respuesta incorrecta");
+            // casos de casillas neutrales
+            case Tile.Categoria.neutral:
+                cartaUI.MostrarMensajeEspecial("Casilla neutral: No pasa nada.", () => {
+                    Debug.Log("Neutral: turno terminado");
+                });
+                break;
 
-            if (!esCorrecta && onRespuestaIncorrecta != null)
-                onRespuestaIncorrecta.Invoke();
+            // casos de casillas de beneficios
+            case Tile.Categoria.Benefits:
+                cartaUI.MostrarMensajeEspecial("Casilla de beneficio: Avanzas 2 casillas.", () => {
+                    jugador.StartCoroutine(jugador.JumpMultipleTimes(2));
+                });
+                break;
 
-            // ✅ Activar dado después de responder
-            if (dadoController != null)
-                dadoController.BloquearDado(false);
-        });
+            // casos de casillas de penalidad
+            case Tile.Categoria.Penalty:
+                cartaUI.MostrarMensajeEspecial("Casilla de penalidad: Retrocedes 3 casillas.", () => {
+                    jugador.StartCoroutine(jugador.Retroceder(3));
+                });
+                break;
+        }
     }
-    else
+
+
+
+    // ✅ AQUÍ LO USAMOS
+    public void MostrarCarta(Tile.Categoria categoria, System.Action onRespuestaIncorrecta = null)
     {
-        Debug.LogWarning($"No hay carta o UI para la categoría {categoria}");
+        Carta carta = ObtenerCartaAleatoria(categoria);
+
+        if (carta != null && cartaUI != null)
+        {
+            // Bloquear dado mientras se responde
+            if (dadoController != null)
+                dadoController.BloquearDado(true);
+
+            cartaUI.MostrarCarta(carta, (int respuestaSeleccionada) =>
+            {
+                bool esCorrecta = respuestaSeleccionada == carta.respuestaCorrecta;
+                Debug.Log(esCorrecta ? "✅ Respuesta correcta" : "❌ Respuesta incorrecta");
+
+                if (!esCorrecta && onRespuestaIncorrecta != null)
+                    onRespuestaIncorrecta.Invoke();
+
+                // ✅ Activar dado después de responder
+                if (dadoController != null)
+                    dadoController.BloquearDado(false);
+            });
+        }
+        else
+        {
+            Debug.LogWarning($"No hay carta o UI para la categoría {categoria}");
+        }
     }
-}
 
 }
