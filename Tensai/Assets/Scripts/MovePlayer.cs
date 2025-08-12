@@ -4,28 +4,31 @@ using System.Text.RegularExpressions;
 
 public class MovePlayer : MonoBehaviour
 {
-    public DiceController dado;
-    private Transform[] tiles;
-    private int currentIndex = 0;
-    private bool isMoving = false;
-
+    [Header("Movimiento")]
     public float jumpHeight = 1.5f;
     public float moveDuration = 0.5f;
 
-    private int ultimaCantidadMovida = 0;
+    [Header("Estado")]
+    public int currentIndex = 0;             // casilla actual
+    public int ultimaCantidadMovida = 0;     // pasos del último avance
+
+    private Transform[] tiles;
+    private bool isMoving = false;
 
     void Start()
     {
         CargarTilesDesdeTablero();
 
         if (tiles.Length > 0)
-            transform.position = tiles[0].position + Vector3.up * 1f;
+        {
+            currentIndex = 0;
+            transform.position = tiles[currentIndex].position + Vector3.up * 1f;
+        }
     }
 
     void CargarTilesDesdeTablero()
     {
         Transform tablero = GameObject.Find("Board")?.transform;
-
         if (tablero == null)
         {
             Debug.LogError("No se encontró el objeto 'Board'");
@@ -39,92 +42,70 @@ public class MovePlayer : MonoBehaviour
 
         System.Array.Sort(tiles, (a, b) =>
         {
-            int numA = ObtenerNumeroDesdeNombre(a.name);
-            int numB = ObtenerNumeroDesdeNombre(b.name);
+            int numA = NumeroEnNombre(a.name);
+            int numB = NumeroEnNombre(b.name);
             return numA.CompareTo(numB);
         });
     }
 
-    int ObtenerNumeroDesdeNombre(string nombre)
+    int NumeroEnNombre(string nombre)
     {
-        string numeroTexto = Regex.Match(nombre, @"\d+").Value;
-        return int.TryParse(numeroTexto, out int resultado) ? resultado : 0;
+        var m = Regex.Match(nombre, @"\d+").Value;
+        return int.TryParse(m, out int n) ? n : 0;
     }
 
-    public IEnumerator JumpMultipleTimes(int cantidad)
+    public IEnumerator MoverAdelante(int pasos)
     {
-        if (isMoving) yield break;
+        if (isMoving || tiles.Length == 0) yield break;
 
-        ultimaCantidadMovida = cantidad;
+        ultimaCantidadMovida = pasos;
 
-        for (int i = 0; i < cantidad; i++)
+        for (int i = 0; i < pasos; i++)
         {
             currentIndex = (currentIndex + 1) % tiles.Length;
-            yield return JumpToTile(tiles[currentIndex].position);
-        }
-
-        yield return new WaitForSeconds(0.5f);
-
-        Tile tile = tiles[currentIndex].GetComponent<Tile>();
-        if (tile != null)
-        {
-            CartaManager.instancia.MostrarCarta(tile.categoria, () =>
-            {
-                StartCoroutine(Retroceder(ultimaCantidadMovida));
-            });
-
-
+            yield return JumpTo(tiles[currentIndex].position);
         }
     }
 
-    public void ResponderCarta(bool correcta)
+    public IEnumerator MoverAtras(int pasos)
     {
-        if (!correcta)
-        {
-            StartCoroutine(Retroceder(ultimaCantidadMovida));
-        }
-    }
-
-    IEnumerator Retroceder(int pasos)
-    {
-        if (isMoving) yield break;
-
-        if (dado != null)
-            dado.BloquearDado(true); // 🔒 Bloqueamos el dado mientras retrocede
+        if (isMoving || tiles.Length == 0) yield break;
 
         for (int i = 0; i < pasos; i++)
         {
             currentIndex = (currentIndex - 1 + tiles.Length) % tiles.Length;
-            yield return JumpToTile(tiles[currentIndex].position);
+            yield return JumpTo(tiles[currentIndex].position);
         }
-
-        if (dado != null)
-            dado.BloquearDado(false); // 🔓 Lo desbloqueamos al terminar
     }
 
-
-    IEnumerator JumpToTile(Vector3 destino)
+    IEnumerator JumpTo(Vector3 destino)
     {
         isMoving = true;
 
         Vector3 start = transform.position;
         Vector3 end = destino + Vector3.up * 1f;
 
-        float tiempo = 0f;
-        while (tiempo < moveDuration)
+        float t = 0f;
+        while (t < moveDuration)
         {
-            tiempo += Time.deltaTime;
-            float t = Mathf.Clamp01(tiempo / moveDuration);
+            t += Time.deltaTime;
+            float k = Mathf.Clamp01(t / moveDuration);
 
-            Vector3 horizontal = Vector3.Lerp(start, end, t);
-            float vertical = Mathf.Sin(t * Mathf.PI) * jumpHeight;
+            Vector3 horizontal = Vector3.Lerp(start, end, k);
+            float vertical = Mathf.Sin(k * Mathf.PI) * jumpHeight;
 
             transform.position = horizontal + Vector3.up * vertical;
-
             yield return null;
         }
 
         transform.position = end;
         isMoving = false;
+    }
+
+    public Tile.Categoria CategoriaActual()
+    {
+        if (tiles == null || tiles.Length == 0) return Tile.Categoria.Historia;
+        Tile tile = tiles[currentIndex].GetComponent<Tile>();
+        return tile != null ? tile.categoria : Tile.Categoria.Historia;
     }
 }

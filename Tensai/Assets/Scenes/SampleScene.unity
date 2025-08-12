@@ -262,7 +262,6 @@ MonoBehaviour:
   boton1: {fileID: 1193614991}
   boton2: {fileID: 545927395}
   boton3: {fileID: 1763393387}
-  dado: {fileID: 696546689}
 --- !u!1001 &78690235
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1094,7 +1093,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   diceText: {fileID: 985960591}
   diceButton: {fileID: 1199613239}
-  player: {fileID: 2018351555}
   minNumber: 1
   maxNumber: 6
   rollDuration: 1
@@ -1535,6 +1533,7 @@ GameObject:
   m_Component:
   - component: {fileID: 942347877}
   - component: {fileID: 942347876}
+  - component: {fileID: 942347878}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1639,7 +1638,6 @@ MonoBehaviour:
     respuesta3: Tornados
     respuestaCorrecta: 2
   cartaUI: {fileID: 18534672}
-  dadoController: {fileID: 696546689}
 --- !u!4 &942347877
 Transform:
   m_ObjectHideFlags: 0
@@ -1655,6 +1653,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &942347878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942347875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c8bf685999aa743ba78b0ebada5758, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cartaManager: {fileID: 942347876}
+  dadoUI: {fileID: 696546689}
+  jugador: {fileID: 2018351555}
+  numeroBots: 2
+  prefabsBots:
+  - {fileID: 8993786202980767660, guid: 48f4c0aaf1c6b5447a7925086486e675, type: 3}
+  - {fileID: 1035817238018747135, guid: 82e932a443f359d4399735f84eece416, type: 3}
+  - {fileID: 7924059811637933962, guid: 7d31ff83e141ee844bf2faf1224c9864, type: 3}
+  dificultadBots: 0
 --- !u!1 &944220923
 GameObject:
   m_ObjectHideFlags: 0
@@ -3217,9 +3236,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c422f69ccb9b6d4581e2b7d5292d4bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dado: {fileID: 696546689}
   jumpHeight: 1.5
   moveDuration: 0.5
+  currentIndex: 0
+  ultimaCantidadMovida: 0
 --- !u!4 &2045854706 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}

@@ -1,68 +1,82 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 public class CartaManager : MonoBehaviour
 {
+    [Header("Cartas por categoría")]
     public List<Carta> historia;
     public List<Carta> geografia;
     public List<Carta> ciencia;
+
+    [Header("UI")]
     public CartaUI cartaUI;
 
-    public static CartaManager instancia;
-    public DiceController dadoController; // Arrástralo desde el inspector
-
+    // barajas temporales para no repetir hasta agotar
+    private Dictionary<Tile.Categoria, List<Carta>> baraja = new Dictionary<Tile.Categoria, List<Carta>>();
 
     void Awake()
     {
-        instancia = this;
+        baraja[Tile.Categoria.Historia] = new List<Carta>(historia);
+        baraja[Tile.Categoria.Geografia] = new List<Carta>(geografia);
+        baraja[Tile.Categoria.Ciencia]  = new List<Carta>(ciencia);
     }
 
-    // ✅ ESTE MÉTODO DEBE EXISTIR
-    private Carta ObtenerCartaAleatoria(Tile.Categoria categoria)
+    Carta SacarCarta(Tile.Categoria cat)
     {
-        List<Carta> lista = categoria switch
+        if (!baraja.ContainsKey(cat))
+            baraja[cat] = new List<Carta>();
+
+        if (baraja[cat].Count == 0)
         {
-            Tile.Categoria.Historia => historia,
-            Tile.Categoria.Geografia => geografia,
-            Tile.Categoria.Ciencia => ciencia,
-            _ => null
-        };
+            // reponer
+            switch (cat)
+            {
+                case Tile.Categoria.Historia:  baraja[cat].AddRange(historia); break;
+                case Tile.Categoria.Geografia: baraja[cat].AddRange(geografia); break;
+                case Tile.Categoria.Ciencia:   baraja[cat].AddRange(ciencia); break;
+            }
+        }
 
-        if (lista == null || lista.Count == 0)
-            return null;
+        if (baraja[cat].Count == 0) return null;
 
-        int index = Random.Range(0, lista.Count);
-        return lista[index];
+        int idx = UnityEngine.Random.Range(0, baraja[cat].Count);
+        Carta c = baraja[cat][idx];
+        baraja[cat].RemoveAt(idx);
+        return c;
     }
 
-    // ✅ AQUÍ LO USAMOS
-public void MostrarCarta(Tile.Categoria categoria, System.Action onRespuestaIncorrecta = null)
-{
-    Carta carta = ObtenerCartaAleatoria(categoria);
-
-    if (carta != null && cartaUI != null)
+    /// <summary>
+    /// Si es humano: muestra UI y devuelve en callback si acierta. 
+    /// Si es bot: simula respuesta con probabilidad de acierto y llama callback.
+    /// </summary>
+    public void HacerPregunta(Tile.Categoria categoria, bool esHumano, float probAciertoBot, Action<bool> onRespondida)
     {
-        // Bloquear dado mientras se responde
-        if (dadoController != null)
-            dadoController.BloquearDado(true);
-
-        cartaUI.MostrarCarta(carta, (int respuestaSeleccionada) =>
+        Carta carta = SacarCarta(categoria);
+        if (carta == null)
         {
-            bool esCorrecta = respuestaSeleccionada == carta.respuestaCorrecta;
-            Debug.Log(esCorrecta ? "✅ Respuesta correcta" : "❌ Respuesta incorrecta");
+            Debug.LogWarning($"No hay cartas en {categoria}");
+            onRespondida?.Invoke(true); // no penalizamos
+            return;
+        }
 
-            if (!esCorrecta && onRespuestaIncorrecta != null)
-                onRespuestaIncorrecta.Invoke();
+        if (esHumano)
+        {
+            if (cartaUI == null)
+            {
+                Debug.LogWarning("CartaUI no asignado. Se asume correcta.");
+                onRespondida?.Invoke(true);
+                return;
+            }
 
-            // ✅ Activar dado después de responder
-            if (dadoController != null)
-                dadoController.BloquearDado(false);
-        });
+            cartaUI.MostrarCarta(carta, onRespondida);
+        }
+        else
+        {
+            // BOT: decide correcta según probabilidad, sin UI
+            bool correcta = UnityEngine.Random.value < probAciertoBot;
+            Debug.Log($"BOT responde {(correcta ? "✅ correcta" : "❌ incorrecta")}");
+            onRespondida?.Invoke(correcta);
+        }
     }
-    else
-    {
-        Debug.LogWarning($"No hay carta o UI para la categoría {categoria}");
-    }
-}
-
 }

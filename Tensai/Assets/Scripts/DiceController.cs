@@ -2,12 +2,12 @@ using UnityEngine;
 using System.Collections;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class DiceController : MonoBehaviour
 {
     public TextMeshProUGUI diceText;
     public Button diceButton;
-    public MovePlayer player;
 
     public int minNumber = 1;
     public int maxNumber = 6;
@@ -17,9 +17,12 @@ public class DiceController : MonoBehaviour
     private bool isRolling = false;
     private bool dadoBloqueado = false;
 
+    public Action<int> OnRolled; // <- GameManager se suscribe
+
     void Start()
     {
-        diceButton.onClick.AddListener(RollDice);
+        if (diceButton != null)
+            diceButton.onClick.AddListener(RollDice);
     }
 
     void RollDice()
@@ -31,27 +34,29 @@ public class DiceController : MonoBehaviour
     public void BloquearDado(bool bloquear)
     {
         dadoBloqueado = bloquear;
-        diceButton.interactable = !bloquear;
+        if (diceButton != null) diceButton.interactable = !bloquear;
     }
 
     IEnumerator RollDiceCoroutine()
     {
         isRolling = true;
-        diceButton.interactable = false;
+        if (diceButton != null) diceButton.interactable = false;
 
         float elapsed = 0f;
-        int numero = 1;
+        int numero = minNumber;
 
         while (elapsed < rollDuration)
         {
-            numero = Random.Range(minNumber, maxNumber + 1);
-            diceText.text = numero.ToString();
+            numero = UnityEngine.Random.Range(minNumber, maxNumber + 1);
+            if (diceText != null) diceText.text = numero.ToString();
             yield return new WaitForSeconds(interval);
             elapsed += interval;
         }
 
-        diceText.text = numero.ToString();
-        yield return StartCoroutine(player.JumpMultipleTimes(numero));
+        if (diceText != null) diceText.text = numero.ToString();
+
+        // Avisar al GameManager (no reactivamos aquí; lo hace GM al inicio del turno del jugador)
+        OnRolled?.Invoke(numero);
 
         isRolling = false;
     }
