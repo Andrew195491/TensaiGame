@@ -58,7 +58,7 @@ public class CartaManager : MonoBehaviour
                 break;
 
             // casos de casillas de beneficios
-/*
+/**/
             case Tile.Categoria.Benefits:
                 cartaUI.MostrarMensajeEspecial("Casilla de Beneficios: Avança 2 casillas.", () =>
                 {
@@ -67,7 +67,7 @@ public class CartaManager : MonoBehaviour
                 });
                 break;
 /*
-*/
+
             case Tile.Categoria.Benefits:
                 Carta cartaBonus = ObtenerCartaAleatoria(Tile.Categoria.Benefits);
                 if (cartaBonus != null)
