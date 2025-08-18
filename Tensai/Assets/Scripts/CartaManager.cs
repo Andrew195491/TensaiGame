@@ -58,16 +58,30 @@ public class CartaManager : MonoBehaviour
                 break;
 
             // casos de casillas de beneficios
+/*
             case Tile.Categoria.Benefits:
-                cartaUI.MostrarMensajeEspecial("Casilla de beneficio: Avanzas 2 casillas.", () => {
+                cartaUI.MostrarMensajeEspecial("Casilla de Beneficios: Avança 2 casillas.", () =>
+                {
                     jugador.StartCoroutine(jugador.JumpMultipleTimes(2));
+                    Debug.Log("Casilla de beneficio: Avanzas 2 casillas.");
                 });
                 break;
+/*
+*/
+            case Tile.Categoria.Benefits:
+                Carta cartaBonus = ObtenerCartaAleatoria(Tile.Categoria.Benefits);
+                if (cartaBonus != null)
+                    PlayerBonusManager.instancia.AgregarCarta(cartaBonus, jugador);
+                break;
+/*
+*/
 
             // casos de casillas de penalidad
             case Tile.Categoria.Penalty:
-                cartaUI.MostrarMensajeEspecial("Casilla de penalidad: Retrocedes 3 casillas.", () => {
+                cartaUI.MostrarMensajeEspecial("Casilla de penalidad: Retrocedes 3 casillas.", () =>
+                {
                     jugador.StartCoroutine(jugador.Retroceder(3));
+                    Debug.Log("Casilla de penalidad: Retrocedes 3 casillas.");
                 });
                 break;
         }
