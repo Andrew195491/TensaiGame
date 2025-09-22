@@ -9,8 +9,7 @@ public class MovePlayer : MonoBehaviour
     public float moveDuration = 0.5f;
 
     [Header("Estado")]
-    public int currentIndex = 0;             // casilla actual
-    public int ultimaCantidadMovida = 0;     // pasos del último avance
+    public int currentIndex = 0;
 
     private Transform[] tiles;
     private bool isMoving = false;
@@ -18,12 +17,8 @@ public class MovePlayer : MonoBehaviour
     void Start()
     {
         CargarTilesDesdeTablero();
-
         if (tiles.Length > 0)
-        {
-            currentIndex = 0;
             transform.position = tiles[currentIndex].position + Vector3.up * 1f;
-        }
     }
 
     void CargarTilesDesdeTablero()
@@ -42,23 +37,21 @@ public class MovePlayer : MonoBehaviour
 
         System.Array.Sort(tiles, (a, b) =>
         {
-            int numA = NumeroEnNombre(a.name);
-            int numB = NumeroEnNombre(b.name);
-            return numA.CompareTo(numB);
+            int na = ExtraerNumero(a.name);
+            int nb = ExtraerNumero(b.name);
+            return na.CompareTo(nb);
         });
     }
 
-    int NumeroEnNombre(string nombre)
+    int ExtraerNumero(string nombre)
     {
-        var m = Regex.Match(nombre, @"\d+").Value;
-        return int.TryParse(m, out int n) ? n : 0;
+        string t = Regex.Match(nombre, @"\d+").Value;
+        return int.TryParse(t, out int n) ? n : 0;
     }
 
     public IEnumerator MoverAdelante(int pasos)
     {
-        if (isMoving || tiles.Length == 0) yield break;
-
-        ultimaCantidadMovida = pasos;
+        if (isMoving || tiles.Length == 0 || pasos <= 0) yield break;
 
         for (int i = 0; i < pasos; i++)
         {
@@ -69,7 +62,7 @@ public class MovePlayer : MonoBehaviour
 
     public IEnumerator MoverAtras(int pasos)
     {
-        if (isMoving || tiles.Length == 0) yield break;
+        if (isMoving || tiles.Length == 0 || pasos <= 0) yield break;
 
         for (int i = 0; i < pasos; i++)
         {
@@ -104,8 +97,25 @@ public class MovePlayer : MonoBehaviour
 
     public Tile.Categoria CategoriaActual()
     {
-        if (tiles == null || tiles.Length == 0) return Tile.Categoria.Historia;
-        Tile tile = tiles[currentIndex].GetComponent<Tile>();
+        Tile tile = GetCurrentTile();
         return tile != null ? tile.categoria : Tile.Categoria.Historia;
+    }
+
+    public Tile GetCurrentTile()
+    {
+        if (tiles == null || tiles.Length == 0) return null;
+        var t = tiles[currentIndex];
+        return t != null ? t.GetComponent<Tile>() : null;
+    }
+
+    // Útil para efectos tipo “teleport”
+    public void TeleportAIndiceSeguro(int indice)
+    {
+        Transform tablero = GameObject.Find("Board")?.transform;
+        if (tablero == null || tablero.childCount == 0) return;
+
+        indice = Mathf.Clamp(indice, 0, tablero.childCount - 1);
+        currentIndex = indice;
+        transform.position = tablero.GetChild(currentIndex).position + Vector3.up * 1f;
     }
 }

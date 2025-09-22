@@ -4,22 +4,73 @@ using System.Collections.Generic;
 
 public class CartaManager : MonoBehaviour
 {
-    [Header("Cartas por categoría")]
-    public List<Carta> historia;
-    public List<Carta> geografia;
-    public List<Carta> ciencia;
+    [Header("Origen de datos")]
+    [Tooltip("Si se deja vacío, cargará Resources/cartas.json")]
+    public TextAsset cartasJsonOverride; // opcional: arrastra un TextAsset distinto si quieres
 
     [Header("UI")]
     public CartaUI cartaUI;
 
-    // barajas temporales para no repetir hasta agotar
-    private Dictionary<Tile.Categoria, List<Carta>> baraja = new Dictionary<Tile.Categoria, List<Carta>>();
+    // Copias cargadas desde JSON
+    private List<Carta> historia = new();
+    private List<Carta> geografia = new();
+    private List<Carta> ciencia = new();
+
+    // Barajas temporales para no repetir
+    private readonly Dictionary<Tile.Categoria, List<Carta>> baraja = new();
 
     void Awake()
     {
-        baraja[Tile.Categoria.Historia] = new List<Carta>(historia);
+        CargarCartasDesdeJson();
+        InicializarBarajas();
+    }
+
+    void CargarCartasDesdeJson()
+    {
+        try
+        {
+            string json;
+            if (cartasJsonOverride != null)
+            {
+                json = cartasJsonOverride.text;
+            }
+            else
+            {
+                // Busca Resources/cartas.json
+                TextAsset ta = Resources.Load<TextAsset>("cartas");
+                if (ta == null)
+                {
+                    Debug.LogError("No se encontró Resources/cartas.json. Crea la carpeta Resources y coloca ahí el archivo.");
+                    return;
+                }
+                json = ta.text;
+            }
+
+            CartasDB db = JsonUtility.FromJson<CartasDB>(json);
+            if (db == null)
+            {
+                Debug.LogError("No se pudo parsear el JSON (¿estructura correcta?).");
+                return;
+            }
+
+            historia  = db.historia  != null ? new List<Carta>(db.historia)   : new List<Carta>();
+            geografia = db.geografia != null ? new List<Carta>(db.geografia)  : new List<Carta>();
+            ciencia   = db.ciencia   != null ? new List<Carta>(db.ciencia)    : new List<Carta>();
+
+            Debug.Log($"Cartas cargadas: H={historia.Count} G={geografia.Count} C={ciencia.Count}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error cargando cartas JSON: {e.Message}\n{e.StackTrace}");
+        }
+    }
+
+    void InicializarBarajas()
+    {
+        baraja.Clear();
+        baraja[Tile.Categoria.Historia]  = new List<Carta>(historia);
         baraja[Tile.Categoria.Geografia] = new List<Carta>(geografia);
-        baraja[Tile.Categoria.Ciencia]  = new List<Carta>(ciencia);
+        baraja[Tile.Categoria.Ciencia]   = new List<Carta>(ciencia);
     }
 
     Carta SacarCarta(Tile.Categoria cat)
@@ -27,14 +78,14 @@ public class CartaManager : MonoBehaviour
         if (!baraja.ContainsKey(cat))
             baraja[cat] = new List<Carta>();
 
+        // Reponer si se agotó
         if (baraja[cat].Count == 0)
         {
-            // reponer
             switch (cat)
             {
-                case Tile.Categoria.Historia:  baraja[cat].AddRange(historia); break;
+                case Tile.Categoria.Historia:  baraja[cat].AddRange(historia);  break;
                 case Tile.Categoria.Geografia: baraja[cat].AddRange(geografia); break;
-                case Tile.Categoria.Ciencia:   baraja[cat].AddRange(ciencia); break;
+                case Tile.Categoria.Ciencia:   baraja[cat].AddRange(ciencia);   break;
             }
         }
 
@@ -46,37 +97,58 @@ public class CartaManager : MonoBehaviour
         return c;
     }
 
+    int OpcionAleatoriaDistintaDe(int correcta1a3)
+    {
+        int pick;
+        do { pick = UnityEngine.Random.Range(1, 4); } while (pick == correcta1a3);
+        return pick;
+    }
+
     /// <summary>
-    /// Si es humano: muestra UI y devuelve en callback si acierta. 
-    /// Si es bot: simula respuesta con probabilidad de acierto y llama callback.
+    /// Si es humano: muestra UI interactiva con colores, cierra tras delay y devuelve si acertó.
+    /// Si es bot: muestra UI no interactiva con su selección coloreada y cierra sola, luego callback.
     /// </summary>
     public void HacerPregunta(Tile.Categoria categoria, bool esHumano, float probAciertoBot, Action<bool> onRespondida)
     {
         Carta carta = SacarCarta(categoria);
         if (carta == null)
         {
-            Debug.LogWarning($"No hay cartas en {categoria}");
-            onRespondida?.Invoke(true); // no penalizamos
+            Debug.LogWarning($"No hay cartas disponibles en {categoria}. Se asume correcta.");
+            onRespondida?.Invoke(true);
+            return;
+        }
+
+        if (cartaUI == null)
+        {
+            Debug.LogWarning("CartaUI no asignado. Se simula sin UI.");
+            bool correctSim = esHumano ? true : (UnityEngine.Random.value < probAciertoBot);
+            onRespondida?.Invoke(correctSim);
             return;
         }
 
         if (esHumano)
         {
-            if (cartaUI == null)
-            {
-                Debug.LogWarning("CartaUI no asignado. Se asume correcta.");
-                onRespondida?.Invoke(true);
-                return;
-            }
-
-            cartaUI.MostrarCarta(carta, onRespondida);
+            cartaUI.MostrarCartaJugador(carta, onRespondida);
         }
         else
         {
-            // BOT: decide correcta según probabilidad, sin UI
             bool correcta = UnityEngine.Random.value < probAciertoBot;
-            Debug.Log($"BOT responde {(correcta ? "✅ correcta" : "❌ incorrecta")}");
-            onRespondida?.Invoke(correcta);
+            int seleccion = correcta ? carta.respuestaCorrecta : OpcionAleatoriaDistintaDe(carta.respuestaCorrecta);
+
+            cartaUI.MostrarCartaBot(
+                carta,
+                seleccion,
+                correcta,
+                () => onRespondida?.Invoke(correcta)
+            );
         }
+    }
+
+    // (Opcional) Llamar en runtime si quieres recargar el JSON sin reiniciar escena
+    public void RecargarDesdeJson()
+    {
+        CargarCartasDesdeJson();
+        InicializarBarajas();
+        Debug.Log("Cartas recargadas desde JSON.");
     }
 }

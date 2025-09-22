@@ -1,0 +1,20 @@
+{
+  "historia": [
+    { "pregunta": "¿Año de independencia de Angola?", "respuesta1": "1975", "respuesta2": "1961", "respuesta3": "1980", "respuestaCorrecta": 1 },
+    { "pregunta": "Primer presidente de Angola", "respuesta1": "Agostinho Neto", "respuesta2": "José Eduardo dos Santos", "respuesta3": "Jonas Savimbi", "respuestaCorrecta": 1 }
+  ],
+  "geografia": [
+    { "pregunta": "Capital de Angola", "respuesta1": "Luanda", "respuesta2": "Benguela", "respuesta3": "Huambo", "respuestaCorrecta": 1 }
+  ],
+  "ciencia": [
+    { "pregunta": "Recurso natural clave en Angola", "respuesta1": "Petróleo", "respuesta2": "Cobre", "respuesta3": "Litio", "respuestaCorrecta": 1 }
+  ],
+  "beneficios": [
+    { "tipo": "Efecto", "nombre": "Avanza 2", "efecto": "MoverRelativo", "pasos": 2 },
+    { "tipo": "Efecto", "nombre": "Repite tirada", "efecto": "RepetirTirada" }
+  ],
+  "penalidades": [
+    { "tipo": "Efecto", "nombre": "Retrocede 2", "efecto": "MoverRelativo", "pasos": -2 },
+    { "tipo": "Efecto", "nombre": "Pierde turno", "efecto": "SaltarTurnos", "turnos": 1 }
+  ]
+}

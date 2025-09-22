@@ -7,20 +7,23 @@ public class GameManager : MonoBehaviour
     public enum DificultadBot { Facil, Medio, Dificil }
 
     [Header("Referencias")]
-    public CartaManager cartaManager;
+    public CardEffectManager cardEffectManager; // arrástralo
     public DiceController dadoUI;
 
     [Header("Jugador y Bots")]
-    public MovePlayer jugador;                 // tu peón jugador (con MovePlayer)
-    [Range(0,3)] public int numeroBots = 0;   // máximo 3 (total 4 jugadores)
-    public GameObject[] prefabsBots;          // asigna hasta 3 prefabs distintos
+    public MovePlayer jugador;
+    [Range(0, 3)] public int numeroBots = 0;
+    public GameObject[] prefabsBots;
     public DificultadBot dificultadBots = DificultadBot.Medio;
 
     private readonly List<MovePlayer> turnOrder = new List<MovePlayer>();
     private int turnoIndex = 0;
     private bool turnoEnCurso = false;
 
-    // offsets para que varias fichas quepan en la misma casilla
+    // efectos persistentes
+    private readonly Dictionary<MovePlayer, int> turnosSaltados = new Dictionary<MovePlayer, int>();
+    private readonly HashSet<MovePlayer> repetirTirada = new HashSet<MovePlayer>();
+
     private readonly Vector3[] offsets = new Vector3[] {
         Vector3.zero,
         new Vector3(0.35f, 0f, 0.35f),
@@ -30,12 +33,14 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Orden de turnos: Jugador primero y luego bots
         if (jugador == null)
         {
             Debug.LogError("Asigna el MovePlayer del jugador en GameManager.");
             return;
         }
+
+        if (cardEffectManager != null && cardEffectManager.gameManager == null)
+            cardEffectManager.gameManager = this;
 
         turnOrder.Clear();
         turnOrder.Add(jugador);
@@ -53,18 +58,25 @@ public class GameManager : MonoBehaviour
             var pm = botGO.GetComponent<MovePlayer>();
             if (pm == null) pm = botGO.AddComponent<MovePlayer>();
 
-            // Colocar en casilla 0 con pequeño offset
-            pm.transform.position += offsets[Mathf.Min(i+1, offsets.Length-1)];
+            // Colocar junto al jugador en casilla 0 con offset
+            pm.transform.position = jugador.transform.position + offsets[Mathf.Min(i+1, offsets.Length-1)];
             turnOrder.Add(pm);
         }
 
-        // Conectar dado UI
-        dadoUI.OnRolled = OnJugadorTiroDado;
-        dadoUI.BloquearDado(false);
+        // Iniciar estructuras persistentes
+        foreach (var p in turnOrder)
+            if (!turnosSaltados.ContainsKey(p)) turnosSaltados[p] = 0;
 
-        // Inicia turno del jugador
+        // Dado
+        if (dadoUI != null)
+        {
+            dadoUI.OnRolled = OnJugadorTiroDado;
+            dadoUI.BloquearDado(false);
+        }
+
         turnoIndex = 0;
         turnoEnCurso = false;
+
         StartCoroutine(LoopTurnos());
     }
 
@@ -74,20 +86,27 @@ public class GameManager : MonoBehaviour
         {
             if (turnoEnCurso) { yield return null; continue; }
 
+            var actual = turnOrder[turnoIndex];
+
+            // Saltos de turno
+            if (turnosSaltados.TryGetValue(actual, out int restan) && restan > 0)
+            {
+                turnosSaltados[actual] = restan - 1;
+                Debug.Log($"[{Nombre(actual)}] salta turno. Restan: {turnosSaltados[actual]}");
+                AvanzarTurno();
+                continue;
+            }
+
             turnoEnCurso = true;
-            MovePlayer actual = turnOrder[turnoIndex];
 
             if (actual == jugador)
             {
-                // Turno del jugador: habilitar dado y esperar a que tire
-                dadoUI.BloquearDado(false);
+                if (dadoUI != null) dadoUI.BloquearDado(false);
                 Debug.Log("Turno del JUGADOR. Lanza el dado.");
-                // Esperar a que OnJugadorTiroDado dispare la corrutina de turno
             }
             else
             {
-                // Turno de un bot
-                dadoUI.BloquearDado(true);
+                if (dadoUI != null) dadoUI.BloquearDado(true);
                 StartCoroutine(TurnoBot(actual));
             }
 
@@ -97,51 +116,90 @@ public class GameManager : MonoBehaviour
 
     void OnJugadorTiroDado(int numero)
     {
-        // El botón ya quedó bloqueado dentro del dado al tirar
         StartCoroutine(ResolverTurno(jugador, numero, true));
     }
 
     IEnumerator TurnoBot(MovePlayer bot)
     {
         int numero = Random.Range(1, 7);
-        Debug.Log($"Turno BOT: tira {numero}");
+        Debug.Log($"Turno BOT [{Nombre(bot)}]: tira {numero}");
         yield return StartCoroutine(ResolverTurno(bot, numero, false));
     }
 
     IEnumerator ResolverTurno(MovePlayer peon, int pasos, bool esHumano)
     {
-        // Bloquear dado mientras se mueve/pregunta
-        dadoUI.BloquearDado(true);
+        if (dadoUI != null) dadoUI.BloquearDado(true);
 
         // 1) Mover hacia adelante
         yield return StartCoroutine(peon.MoverAdelante(pasos));
 
-        // 2) Pequeño delay
+        // 2) Delay suave
         yield return new WaitForSeconds(0.25f);
 
-        // 3) Preguntar
-        bool? resultado = null; // null = esperando
-        var categoria = peon.CategoriaActual();
-
-        cartaManager.HacerPregunta(categoria, esHumano, ProbAciertoBots(), (bool correcta) =>
+        // 3) Resolver según tipo de casilla
+        Tile tile = peon.GetCurrentTile();
+        if (tile == null)
         {
-            resultado = correcta;
-        });
-
-        // Esperar a que se responda (o simular en bot)
-        while (resultado == null) yield return null;
-
-        // 4) Si fue incorrecta, retroceder lo movido
-        if (resultado == false)
-        {
-            yield return StartCoroutine(peon.MoverAtras(pasos));
+            Debug.LogWarning("No se encontró Tile bajo el peón.");
+            TerminarTurnoORepetir(peon, esHumano);
+            yield break;
         }
 
-        // 5) Fin de turno: pasar al siguiente
+        switch (tile.tipo)
+        {
+            case Tile.TipoCasilla.Neutral:
+                Debug.Log("Casilla NEUTRAL.");
+                TerminarTurnoORepetir(peon, esHumano);
+                break;
+
+            case Tile.TipoCasilla.Pregunta:
+            {
+                bool? resultado = null;
+                cardEffectManager.HacerPregunta(tile.categoria, esHumano, ProbAciertoBots(), (bool correcta) => resultado = correcta);
+                while (resultado == null) yield return null;
+
+                if (resultado == false) // falló
+                    yield return StartCoroutine(peon.MoverAtras(pasos));
+
+                TerminarTurnoORepetir(peon, esHumano);
+                break;
+            }
+
+            case Tile.TipoCasilla.Beneficio:
+                yield return StartCoroutine(cardEffectManager.EjecutarBeneficioAleatorio(peon));
+                TerminarTurnoORepetir(peon, esHumano);
+                break;
+
+            case Tile.TipoCasilla.Penalidad:
+                yield return StartCoroutine(cardEffectManager.EjecutarPenalidadAleatoria(peon));
+                TerminarTurnoORepetir(peon, esHumano);
+                break;
+        }
+    }
+
+    void TerminarTurnoORepetir(MovePlayer peon, bool esHumano)
+    {
+        if (repetirTirada.Contains(peon))
+        {
+            repetirTirada.Remove(peon);
+            Debug.Log($"[{Nombre(peon)}] repite tirada.");
+
+            if (peon == jugador)
+            {
+                if (dadoUI != null) dadoUI.BloquearDado(false);
+            }
+            else
+            {
+                StartCoroutine(TurnoBot(peon));
+            }
+
+            turnoEnCurso = false;
+            return;
+        }
+
         AvanzarTurno();
 
-        // Si le toca al jugador, permitir volver a tirar
-        if (turnOrder[turnoIndex] == jugador)
+        if (turnOrder[turnoIndex] == jugador && dadoUI != null)
             dadoUI.BloquearDado(false);
 
         turnoEnCurso = false;
@@ -162,4 +220,16 @@ public class GameManager : MonoBehaviour
         }
         return 0.65f;
     }
+
+    // Llamadas desde CardEffectManager (efectos persistentes)
+    public void MarcarRepetirTirada(MovePlayer peon) => repetirTirada.Add(peon);
+
+    public void AplicarSaltarTurnos(MovePlayer peon, int turnos)
+    {
+        if (!turnosSaltados.ContainsKey(peon)) turnosSaltados[peon] = 0;
+        turnosSaltados[peon] += Mathf.Max(1, turnos);
+        Debug.Log($"[{Nombre(peon)}] perderá {turnosSaltados[peon]} turno(s).");
+    }
+
+    string Nombre(MovePlayer p) => p != null ? p.gameObject.name : "Peon";
 }
