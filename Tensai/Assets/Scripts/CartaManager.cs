@@ -122,15 +122,6 @@ public class CartaManager : MonoBehaviour
         Carta cartaSeleccionada = null;
 
 
-        if (categoria == Tile.Categoria.Penalty)
-        {
-            cartaSeleccionada = ObtenerCartaPenalidadAleatoria();
-            if (cartaSeleccionada != null)
-            {
-     
-            }
-        }
-
         switch (categoria)
         {
             // casos de casillas neutrales
@@ -176,6 +167,14 @@ public class CartaManager : MonoBehaviour
 
             // casos de casillas de penalidad
             case Tile.Categoria.Penalty:
+                if (categoria == Tile.Categoria.Penalty)
+                {
+                cartaSeleccionada = ObtenerCartaPenalidadAleatoria();
+            if (cartaSeleccionada != null)
+            {
+     
+            }
+        }
                 cartaUI.MostrarMensajeEspecial("Casilla de penalidad: Retrocedes 3 casillas.", () =>
                 {
                     jugador.StartCoroutine(jugador.Retroceder(3));
