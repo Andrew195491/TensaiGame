@@ -121,22 +121,13 @@ public class CartaManager : MonoBehaviour
         if (cartaUI == null) return;
         Carta cartaSeleccionada = null;
 
-        if (categoria == Tile.Categoria.Benefits)
-        {
-            cartaSeleccionada = ObtenerCartaBeneficioAleatoria();
-            if (cartaSeleccionada != null)
-            {
-                if (!AgregarCartaAlStorage(cartaSeleccionada))
-                    Debug.Log("⚠️ Storage lleno, debes usar una carta antes.");
-            }
-        }
-        else if (categoria == Tile.Categoria.Penalty)
+
+        if (categoria == Tile.Categoria.Penalty)
         {
             cartaSeleccionada = ObtenerCartaPenalidadAleatoria();
             if (cartaSeleccionada != null)
             {
-                if (!AgregarCartaAlStorage(cartaSeleccionada))
-                    Debug.Log("⚠️ Storage lleno, debes usar una carta antes.");
+     
             }
         }
 
@@ -153,12 +144,34 @@ public class CartaManager : MonoBehaviour
             // casos de casillas de beneficios
             /**/
             case Tile.Categoria.Benefits:
-                cartaUI.MostrarMensajeEspecial("Casilla de Beneficios: Avança 2 casillas.", () =>
+                //if (categoria == Tile.Categoria.Benefits)
+                //{
+                    cartaSeleccionada = ObtenerCartaBeneficioAleatoria();
+                    if (cartaSeleccionada != null)
+                    {
+                        Debug.Log("test carta beneficio");
+                        if (cartaSeleccionada.accion == "Avanza2")
+                    {
+                        cartaUI.MostrarMensajeEspecial(cartaSeleccionada.pregunta, () =>
+                        {
+                            jugador.StartCoroutine(jugador.JumpMultipleTimes(2));
+                            Debug.Log("Casilla de beneficio: Avanzas 2 casillas.");
+
+                        });
+                    }
+                    else if (!AgregarCartaAlStorage(cartaSeleccionada))
+                    {
+                        Debug.Log("⚠️ Storage lleno, debes usar una carta antes.");
+                    }
+                    }
+                //}
+                /*cartaUI.MostrarMensajeEspecial("Casilla de Beneficios: Avança 2 casillas.", () =>
                 {
                     jugador.StartCoroutine(jugador.JumpMultipleTimes(2));
                     Debug.Log("Casilla de beneficio: Avanzas 2 casillas.");
                 });
-                break;
+                */
+            break;
 
 
             // casos de casillas de penalidad
@@ -255,7 +268,7 @@ public class CartaManager : MonoBehaviour
             }
         });
     }
- 
+
     public void EjecutarPenalidad(Carta carta, MovePlayer jugador)
     {
         if (carta == null) return;
