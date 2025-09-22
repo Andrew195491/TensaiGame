@@ -1779,10 +1779,26 @@ MonoBehaviour:
     respuesta2: Inundaciones
     respuesta3: Tornados
     respuestaCorrecta: 2
-  benefits: []
-  penalty: []
   cartaUI: {fileID: 18534672}
   dadoController: {fileID: 696546689}
+  benefits: []
+  penalty: []
+  storage:
+  - pregunta: 
+    respuesta1: 
+    respuesta2: 
+    respuesta3: 
+    respuestaCorrecta: 0
+  - pregunta: 
+    respuesta1: 
+    respuesta2: 
+    respuesta3: 
+    respuestaCorrecta: 0
+  - pregunta: 
+    respuesta1: 
+    respuesta2: 
+    respuesta3: 
+    respuestaCorrecta: 0
 --- !u!4 &942347877
 Transform:
   m_ObjectHideFlags: 0
