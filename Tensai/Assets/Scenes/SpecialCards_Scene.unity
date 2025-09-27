@@ -338,7 +338,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: categoria
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -808,7 +808,7 @@ Transform:
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1675,7 +1675,6 @@ GameObject:
   m_Component:
   - component: {fileID: 942347877}
   - component: {fileID: 942347876}
-  - component: {fileID: 942347878}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1701,86 +1700,102 @@ MonoBehaviour:
     respuesta2: 1961
     respuesta3: 1980
     respuestaCorrecta: 1
+    accion: 
   - pregunta: "\xBFQu\xE9 figura hist\xF3rica fue el primer presidente de Angola?"
     respuesta1: Agostinho Neto
     respuesta2: "Jos\xE9 Eduardo dos Santos"
     respuesta3: Jonas Savimbi
     respuestaCorrecta: 1
+    accion: 
   - pregunta: "\xBFQu\xE9 movimiento pol\xEDtico luch\xF3 por la independencia de
       Angola?"
     respuesta1: FRELIMO
     respuesta2: ANC
     respuesta3: MPLA
     respuestaCorrecta: 3
+    accion: 
   - pregunta: "\xBFQu\xE9 conflicto afect\xF3 a Angola despu\xE9s de su independencia?"
     respuesta1: Segunda Guerra Mundial
     respuesta2: Guerra civil
     respuesta3: Guerra del Golfo
     respuestaCorrecta: 2
+    accion: 
   - pregunta: "\xBFQu\xE9 pa\xEDs apoy\xF3 principalmente al UNITA durante la guerra
       civil angole\xF1a?"
     respuesta1: Cuba
     respuesta2: "Uni\xF3n Sovi\xE9tica"
     respuesta3: Estados Unidos
     respuestaCorrecta: 3
+    accion: 
   geografia:
   - pregunta: "\xBFCu\xE1l es la capital de Angola?"
     respuesta1: Luanda
     respuesta2: Benguela
     respuesta3: Huambo
     respuestaCorrecta: 1
+    accion: 
   - pregunta: "\xBFQu\xE9 gran r\xEDo atraviesa el sur de Angola?"
     respuesta1: Zambeze
     respuesta2: "R\xEDo Cunene"
     respuesta3: Amazonas
     respuestaCorrecta: 2
+    accion: 
   - pregunta: "\xBFCon qu\xE9 pa\xEDs no limita Angola?"
     respuesta1: Zambia
     respuesta2: Namibia
     respuesta3: Tanzania
     respuestaCorrecta: 3
+    accion: 
   - pregunta: "\xBFQu\xE9 provincia de Angola est\xE1 separada del resto del pa\xEDs
       y rodeada por RDC y el mar?"
     respuesta1: Cabinda
     respuesta2: "Bi\xE9"
     respuesta3: Cuanza Sul
     respuestaCorrecta: 1
+    accion: 
   - pregunta: "\xBFQu\xE9 oc\xE9ano ba\xF1a las costas de Angola?"
     respuesta1: "\xCDndico"
     respuesta2: "Atl\xE1ntico"
     respuesta3: "Pac\xEDfico"
     respuestaCorrecta: 2
+    accion: 
   ciencia:
   - pregunta: "\xBFQu\xE9 bioma domina el norte de Angola?"
     respuesta1: Sabana
     respuesta2: Desierto
     respuesta3: Selva tropical
     respuestaCorrecta: 3
+    accion: 
   - pregunta: "\xBFCu\xE1l es uno de los recursos naturales m\xE1s importantes de
       Angola?"
     respuesta1: Cobre
     respuesta2: "Petr\xF3leo"
     respuesta3: Oro
     respuestaCorrecta: 2
+    accion: 
   - pregunta: "\xBFQu\xE9 animal emblem\xE1tico se encuentra en los parques nacionales
       de Angola?"
     respuesta1: Elefante africano
     respuesta2: Tigre
     respuesta3: Oso polar
     respuestaCorrecta: 1
+    accion: 
   - pregunta: "\xBFQu\xE9 especie marina es com\xFAn en las costas angole\xF1as?"
     respuesta1: "Tibur\xF3n blanco"
     respuesta2: "Salm\xF3n"
     respuesta3: Sardina
     respuestaCorrecta: 3
+    accion: 
   - pregunta: "\xBFQu\xE9 fen\xF3meno natural amenaza algunas zonas de Angola durante
       la estaci\xF3n lluviosa?"
     respuesta1: Terremotos
     respuesta2: Inundaciones
     respuesta3: Tornados
     respuestaCorrecta: 2
+    accion: 
   cartaUI: {fileID: 18534672}
   dadoController: {fileID: 696546689}
+  bonusUI: {fileID: 1595618274}
   benefits: []
   penalty: []
   storage:
@@ -1789,16 +1804,20 @@ MonoBehaviour:
     respuesta2: 
     respuesta3: 
     respuestaCorrecta: 0
+    accion: 
   - pregunta: 
     respuesta1: 
     respuesta2: 
     respuesta3: 
     respuestaCorrecta: 0
+    accion: 
   - pregunta: 
     respuesta1: 
     respuesta2: 
     respuesta3: 
     respuestaCorrecta: 0
+    accion: 
+  maxStorage: 3
 --- !u!4 &942347877
 Transform:
   m_ObjectHideFlags: 0
@@ -1814,23 +1833,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &942347878
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 942347875}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16be268f263f34b1e9c0ce1051362b14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  storageCard1: {fileID: 1785775293}
-  storageCard2: {fileID: 1764572611}
-  storageCard3: {fileID: 996593981}
-  cardExplaining: {fileID: 992135876}
-  cardExplainingText: {fileID: 295011183}
 --- !u!1 &944220923
 GameObject:
   m_ObjectHideFlags: 0
@@ -2702,6 +2704,7 @@ GameObject:
   - component: {fileID: 1595618272}
   - component: {fileID: 1595618271}
   - component: {fileID: 1595618270}
+  - component: {fileID: 1595618274}
   m_Layer: 5
   m_Name: SpecialCards_Canvas
   m_TagString: Untagged
@@ -2792,6 +2795,24 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1595618274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595618269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16be268f263f34b1e9c0ce1051362b14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  storageCard1: {fileID: 1785775293}
+  storageCard2: {fileID: 1764572611}
+  storageCard3: {fileID: 996593981}
+  cardExplaining: {fileID: 992135876}
+  cardExplainingText: {fileID: 295011183}
+  jugador: {fileID: 2018351555}
 --- !u!1 &1664871202
 GameObject:
   m_ObjectHideFlags: 0
@@ -3318,7 +3339,7 @@ Transform:
   m_GameObject: {fileID: 1819514869}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -625.2102, y: 112.482544, z: 0}
+  m_LocalPosition: {x: -631, y: 79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3853,7 +3874,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: categoria
-      value: 1
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3914,7 +3935,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: categoria
-      value: 0
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: m_LocalPosition.x
