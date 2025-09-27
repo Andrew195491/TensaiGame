@@ -11,7 +11,7 @@ public class CartaManager : MonoBehaviour
     [Header("Referencias UI")]
     public CartaUI cartaUI;
     public DiceController dadoController;
-    public BonusUI bonusUI; // Para mostrar cartas almacenadas
+    public BonusUI bonusUI; // ✅ ASEGÚRATE DE ASIGNAR ESTO EN EL INSPECTOR
 
     public static CartaManager instancia;
 
@@ -22,7 +22,8 @@ public class CartaManager : MonoBehaviour
     public List<Carta> penalty = new List<Carta>();
 
     [Header("Almacenamiento de cartas especiales")]
-    public Carta[] storage = new Carta[2];
+    public List<Carta> storage = new List<Carta>(); // ✅ CAMBIADO A LIST
+    public int maxStorage = 3; // ✅ LÍMITE CONFIGURABLE
 
     void Awake()
     {
@@ -30,13 +31,28 @@ public class CartaManager : MonoBehaviour
         InicializarCartasEspeciales();
     }
 
-    void Start()
+[ContextMenu("Limpiar Storage Completamente")]
+public void LimpiarStorageCompletamente()
+{
+    storage.Clear();
+    Debug.Log($"Storage limpiado. Nuevo count: {storage.Count}");
+    ActualizarUIStorage();
+}
+
+// También modifica el Start() para forzar la limpieza:
+void Start()
+{
+    // FORZAR LIMPIEZA DEL STORAGE AL INICIO
+    storage.Clear();
+    Debug.Log($"Storage inicializado vacío. Count: {storage.Count}/{maxStorage}");
+    
+    if (bonusUI == null)
     {
-        // Actualizar UI del storage al inicio
-        Debug.Log(storage.Length);
-        ActualizarUIStorage();
-        
+        Debug.LogError("❌ BonusUI no está asignado en CartaManager!");
     }
+    
+    ActualizarUIStorage();
+}
 
     void InicializarCartasEspeciales()
     {
@@ -194,49 +210,63 @@ public class CartaManager : MonoBehaviour
         return penalty[index];
     }
 
-    // ✅ Sistema de almacenamiento mejorado
+    // ✅ SISTEMA DE ALMACENAMIENTO CORREGIDO
     public bool AgregarCartaAlStorage(Carta carta)
     {
-        for (int i = 0; i < storage.Length; i++)
+        if (storage.Count >= maxStorage)
         {
-            if (storage[i] == null)
-            {
-                storage[i] = carta;
-                Debug.Log($"✅ Carta agregada al storage en posición {i}: {carta.pregunta}");
-                ActualizarUIStorage(); // ✅ Actualizar UI automáticamente
-                return true;
-            }
+            Debug.Log("⚠️ Storage lleno! No se puede agregar más cartas.");
+            return false;
         }
 
-        Debug.Log("⚠️ Storage lleno, no se puede agregar la carta.");
-        return false;
+        storage.Add(carta);
+        Debug.Log($"✅ Carta agregada al storage: {carta.pregunta} (Total: {storage.Count}/{maxStorage})");
+        ActualizarUIStorage();
+        return true;
     }
 
     public void UsarCartaDelStorage(int index, MovePlayer jugador)
     {
-        if (index < 0 || index >= storage.Length || storage[index] == null)
+        if (index < 0 || index >= storage.Count)
         {
-            Debug.Log("❌ No hay carta en esa posición.");
+            Debug.Log("❌ Índice inválido o no hay carta en esa posición.");
             return;
         }
 
         Carta carta = storage[index];
         
         // Determinar si es beneficio o penalidad y ejecutar
-        if (benefits.Contains(carta))
+        if (EsBeneficio(carta))
         {
             EjecutarBeneficio(carta, jugador);
         }
-        else if (penalty.Contains(carta))
+        else if (EsPenalidad(carta))
         {
             EjecutarPenalidad(carta, jugador);
         }
 
-        // Liberar el slot
-        storage[index] = null;
+        // Remover la carta del storage
+        storage.RemoveAt(index);
         ActualizarUIStorage();
         
-        Debug.Log($"🎯 Carta usada: {carta.pregunta}");
+        Debug.Log($"🎯 Carta usada: {carta.pregunta} (Restantes: {storage.Count}/{maxStorage})");
+    }
+
+    // ✅ MÉTODO AUXILIAR para verificar tipo de carta
+    private bool EsBeneficio(Carta carta)
+    {
+        return carta.accion == "Avanza1" || carta.accion == "Avanza2" || carta.accion == "Avanza3" ||
+               carta.accion == "RepiteTurno" || carta.accion == "Intercambia" || carta.accion == "Inmunidad" ||
+               carta.accion == "DobleDado" || carta.accion == "TeletransporteAdelante" || 
+               carta.accion == "ElegirDado" || carta.accion == "RobarCarta";
+    }
+
+    private bool EsPenalidad(Carta carta)
+    {
+        return carta.accion == "Retrocede1" || carta.accion == "Retrocede2" || carta.accion == "Retrocede3" ||
+               carta.accion == "PierdeTurno" || carta.accion == "IrSalida" || carta.accion == "IntercambiaUltimo" ||
+               carta.accion == "PerderCartas" || carta.accion == "BloquearDados" || carta.accion == "TeletransporteAtras" ||
+               carta.accion == "MovimientoLimitado";
     }
 
     // ✅ MÉTODO PÚBLICO para actualizar UI
@@ -244,12 +274,26 @@ public class CartaManager : MonoBehaviour
     {
         if (bonusUI != null)
         {
-            List<Carta> cartasParaMostrar = new List<Carta>();
-            foreach (var carta in storage)
-            {
-                if (carta != null) cartasParaMostrar.Add(carta);
-            }
-            bonusUI.ActualizarUI(cartasParaMostrar);
+            bonusUI.ActualizarUI(storage);
+            Debug.Log($"📱 UI actualizada. Cartas en storage: {storage.Count}/{maxStorage}");
+        }
+        else
+        {
+            Debug.LogError("❌ BonusUI es null! Asegúrate de asignarlo en el Inspector.");
+        }
+    }
+
+    // ✅ MÉTODO PARA DEBUGGING
+    [ContextMenu("Debug Storage")]
+    public void DebugStorage()
+    {
+        Debug.Log($"🔍 STORAGE DEBUG:");
+        Debug.Log($"   - Cantidad actual: {storage.Count}/{maxStorage}");
+        Debug.Log($"   - BonusUI asignado: {bonusUI != null}");
+        
+        for (int i = 0; i < storage.Count; i++)
+        {
+            Debug.Log($"   - [{i}]: {storage[i].pregunta} (Acción: {storage[i].accion})");
         }
     }
 
@@ -340,10 +384,7 @@ public class CartaManager : MonoBehaviour
                 break;
             case "PerderCartas":
                 // Limpiar storage
-                for (int i = 0; i < storage.Length; i++)
-                {
-                    storage[i] = null;
-                }
+                storage.Clear();
                 ActualizarUIStorage();
                 Debug.Log("💸 Pierdes todas tus cartas especiales");
                 break;
