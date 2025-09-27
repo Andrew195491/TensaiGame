@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class BonusUI : MonoBehaviour
@@ -13,6 +14,9 @@ public class BonusUI : MonoBehaviour
     [Header("Panel de explicación")]
     public GameObject cardExplaining;
     public TextMeshProUGUI cardExplainingText;
+
+    [Header("Referencias del jugador")]
+    public MovePlayer jugador; // Asignar en el inspector
 
     private List<GameObject> storageSlots = new List<GameObject>();
 
@@ -48,10 +52,22 @@ public class BonusUI : MonoBehaviour
             // Buscar un TMP_Text dentro del slot (ej. nombre/resumen de carta)
             TextMeshProUGUI txt = slot.GetComponentInChildren<TextMeshProUGUI>();
             if (txt != null)
-                txt.text = cartas[i].pregunta; // Puedes poner un resumen aquí
+            {
+                // Mostrar tipo de carta y efecto
+                string tipoIcono = cartas[i].accion.Contains("Avanza") || cartas[i].accion == "RepiteTurno" ? "✨" : "⚡";
+                txt.text = $"{tipoIcono} {ObtenerResumenCarta(cartas[i])}";
+            }
+
+            // Configurar botón para usar la carta
+            Button boton = slot.GetComponent<Button>();
+            if (boton == null) 
+                boton = slot.AddComponent<Button>();
+
+            int index = i; // Capturar índice para el closure
+            boton.onClick.RemoveAllListeners();
+            boton.onClick.AddListener(() => UsarCartaEnPosicion(index));
 
             // Configurar los eventos de hover
-            int index = i;
             EventTrigger trigger = slot.GetComponent<EventTrigger>();
             if (trigger == null) trigger = slot.AddComponent<EventTrigger>();
             trigger.triggers.Clear();
@@ -74,10 +90,44 @@ public class BonusUI : MonoBehaviour
         }
     }
 
+    private string ObtenerResumenCarta(Carta carta)
+    {
+        return carta.accion switch
+        {
+            "Avanza1" => "Avanza +1",
+            "Avanza2" => "Avanza +2",
+            "Avanza3" => "Avanza +3",
+            "RepiteTurno" => "Repite turno",
+            "Intercambia" => "Intercambiar",
+            "Inmunidad" => "Inmunidad",
+            "DobleDado" => "Doble dado",
+            "TeletransporteAdelante" => "Teletransporte+",
+            "ElegirDado" => "Elegir dado",
+            "RobarCarta" => "Robar carta",
+            "Retrocede1" => "Retrocede -1",
+            "Retrocede2" => "Retrocede -2",
+            "Retrocede3" => "Retrocede -3",
+            "PierdeTurno" => "Pierde turno",
+            "IrSalida" => "A salida",
+            _ => "Especial"
+        };
+    }
+
+    private void UsarCartaEnPosicion(int posicion)
+    {
+        if (CartaManager.instancia != null && jugador != null)
+        {
+            CartaManager.instancia.UsarCartaDelStorage(posicion, jugador);
+            Debug.Log($"🎯 Usando carta en posición {posicion}");
+        }
+    }
+
     private void MostrarExplicacion(Carta carta)
     {
         cardExplaining.SetActive(true);
-        cardExplainingText.text = $"📜 {carta.pregunta}\n➡️ {carta.respuesta1}";
+        
+        string tipoIcono = carta.accion.Contains("Avanza") || carta.accion == "RepiteTurno" ? "✨" : "⚡";
+        cardExplainingText.text = $"{tipoIcono} {carta.pregunta}\n\n💡 Haz clic para usar esta carta";
     }
 
     private void OcultarExplicacion()

@@ -91,4 +91,49 @@ public class CartaUI : MonoBehaviour
         if (dado != null)
             dado.BloquearDado(false); // 🔓 Desbloquear el dado
     }
+
+
+// ✅ NUEVO MÉTODO: Para decidir si usar o guardar una carta de beneficio
+    public void MostrarDecisionBeneficio(Carta carta, MovePlayer jugador, System.Action onDecisionMade)
+    {
+        panel.SetActive(true);
+
+        // 1. Configurar el texto y las respuestas
+        textoPregunta.text = $"¡Has obtenido un beneficio!\n<b>{carta.pregunta}</b>\n\n¿Qué quieres hacer?";
+        textoRespuesta1.text = ""; // Ocultamos textos de respuestas
+        textoRespuesta2.text = "";
+        textoRespuesta3.text = "";
+
+        // 2. Ocultar botones innecesarios
+        boton3.gameObject.SetActive(false); // No necesitamos el tercer botón
+        
+        // 3. Configurar el botón 1 para "Usar Ahora"
+        boton1.gameObject.SetActive(true);
+        boton1.GetComponentInChildren<TextMeshProUGUI>().text = "Usar Ahora";
+        boton1.onClick.RemoveAllListeners();
+        boton1.onClick.AddListener(() =>
+        {
+            CartaManager.instancia.EjecutarBeneficio(carta, jugador);
+            CerrarPanelDecision(onDecisionMade);
+        });
+
+        // 4. Configurar el botón 2 para "Guardar"
+        boton2.gameObject.SetActive(true);
+        boton2.GetComponentInChildren<TextMeshProUGUI>().text = "Guardar";
+        boton2.onClick.RemoveAllListeners();
+        boton2.onClick.AddListener(() =>
+        {
+            CartaManager.instancia.AgregarCartaAlStorage(carta);
+            CerrarPanelDecision(onDecisionMade);
+        });
+    }
+
+    // Método auxiliar para cerrar el panel y limpiar
+    private void CerrarPanelDecision(System.Action onDecisionMade)
+    {
+        panel.SetActive(false);
+        boton3.gameObject.SetActive(true); // Restauramos la visibilidad por si se usa después
+        onDecisionMade?.Invoke();
+    }
+
 }

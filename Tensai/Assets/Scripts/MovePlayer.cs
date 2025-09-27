@@ -141,4 +141,27 @@ public class MovePlayer : MonoBehaviour
         transform.position = end;
         isMoving = false;
     }
+
+    // ✅ Agregar este método al final de la clase MovePlayer
+public IEnumerator IrACasilla(int indiceCasilla)
+{
+    if (isMoving) yield break;
+    
+    if (dado != null)
+        dado.BloquearDado(true);
+
+    // Calcular la casilla destino (asegurándose de que esté en rango)
+    int destino = Mathf.Clamp(indiceCasilla, 0, tiles.Length - 1);
+    
+    // Mover directamente a la casilla sin pasar por las intermedias
+    currentIndex = destino;
+    
+    // Animar el salto a la nueva posición
+    yield return JumpToTile(tiles[currentIndex].position);
+    
+    Debug.Log($"🏠 Jugador movido a casilla {destino}");
+    
+    if (dado != null)
+        dado.BloquearDado(false);
+}
 }
