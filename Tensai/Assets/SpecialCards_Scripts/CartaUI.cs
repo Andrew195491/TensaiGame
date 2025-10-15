@@ -46,12 +46,12 @@ public class CartaUI : MonoBehaviour
         boton3.onClick.AddListener(() => { panel.SetActive(false); onRespuesta(3); });
     }
 
-    // Método para mostrar mensajes de las casillas especiales sin respuestas
+    // MÃƒÂ©todo para mostrar mensajes de las casillas especiales sin respuestas
     public void MostrarMensajeEspecial(string mensaje, System.Action onCerrar)
     {
         panel.SetActive(true);
 
-        // Solo mostramos el mensaje, sin respuestas múltiples
+        // Solo mostramos el mensaje, sin respuestas mÃƒÂºltiples
         textoPregunta.text = mensaje;
         textoRespuesta1.text = "";
         textoRespuesta2.text = "";
@@ -61,13 +61,13 @@ public class CartaUI : MonoBehaviour
         boton2.gameObject.SetActive(false);
         boton3.gameObject.SetActive(false);
 
-        // Botón 1 será solo "Aceptar"
+        // BotÃƒÂ³n 1 serÃƒÂ¡ solo "Aceptar"
         boton1.GetComponentInChildren<TextMeshProUGUI>().text = "Aceptar";
         boton1.onClick.RemoveAllListeners();
         boton1.onClick.AddListener(() =>
         {
             panel.SetActive(false);
-            // Restauramos visibilidad para la próxima carta
+            // Restauramos visibilidad para la prÃƒÂ³xima carta
             boton2.gameObject.SetActive(true);
             boton3.gameObject.SetActive(true);
             onCerrar?.Invoke();
@@ -80,60 +80,66 @@ public class CartaUI : MonoBehaviour
     {
         if (respuestaSeleccionada == respuestaCorrectaActual)
         {
-            Debug.Log("✅ ¡Respuesta correcta!");
+            Debug.Log("Ã¢Å“â€¦ Ã‚Â¡Respuesta correcta!");
         }
         else
         {
-            Debug.Log("❌ Respuesta incorrecta.");
+            Debug.Log("Ã¢ÂÅ’ Respuesta incorrecta.");
         }
 
         panel.SetActive(false);        // Ocultar carta
         if (dado != null)
-            dado.BloquearDado(false); // 🔓 Desbloquear el dado
+            dado.BloquearDado(false); // Ã°Å¸â€â€œ Desbloquear el dado
     }
 
 
-// ✅ NUEVO MÉTODO: Para decidir si usar o guardar una carta de beneficio
-    public void MostrarDecisionBeneficio(Carta carta, MovePlayer jugador, System.Action onDecisionMade)
+// REEMPLAZA el método MostrarDecisionBeneficio con este:
+/// <summary>
+/// Muestra las opciones para una carta de beneficio: Guardarla o Descartarla.
+/// </summary>
+public void MostrarDecisionAlmacenar(Carta carta, MovePlayer jugador, System.Action onDecisionMade)
+{
+    panel.SetActive(true);
+
+    // 1. Configurar el texto
+    textoPregunta.text = $"¡Has obtenido un beneficio!\n<b>{carta.pregunta}</b>\n\n¿Quieres guardarla en tu inventario?";
+    textoRespuesta1.text = ""; // Ocultamos textos de respuestas
+    textoRespuesta2.text = "";
+    textoRespuesta3.text = "";
+
+    // 2. Ocultar botón innecesario
+    boton3.gameObject.SetActive(false);
+    
+    // 3. Configurar el botón 1 para "Guardar"
+    boton1.gameObject.SetActive(true);
+    boton1.GetComponentInChildren<TextMeshProUGUI>().text = "Guardar";
+    boton1.onClick.RemoveAllListeners();
+    boton1.onClick.AddListener(() =>
     {
-        panel.SetActive(true);
+        // Intentará agregar la carta. El CartaManager gestionará si el inventario está lleno.
+        CartaManager.instancia.IntentarAgregarCarta(carta);
+        CerrarPanelDecision(onDecisionMade);
+    });
 
-        // 1. Configurar el texto y las respuestas
-        textoPregunta.text = $"¡Has obtenido un beneficio!\n<b>{carta.pregunta}</b>\n\n¿Qué quieres hacer?";
-        textoRespuesta1.text = ""; // Ocultamos textos de respuestas
-        textoRespuesta2.text = "";
-        textoRespuesta3.text = "";
-
-        // 2. Ocultar botones innecesarios
-        boton3.gameObject.SetActive(false); // No necesitamos el tercer botón
-        
-        // 3. Configurar el botón 1 para "Usar Ahora"
-        boton1.gameObject.SetActive(true);
-        boton1.GetComponentInChildren<TextMeshProUGUI>().text = "Usar Ahora";
-        boton1.onClick.RemoveAllListeners();
-        boton1.onClick.AddListener(() =>
-        {
-            CartaManager.instancia.EjecutarBeneficio(carta, jugador);
-            CerrarPanelDecision(onDecisionMade);
-        });
-
-        // 4. Configurar el botón 2 para "Guardar"
-        boton2.gameObject.SetActive(true);
-        boton2.GetComponentInChildren<TextMeshProUGUI>().text = "Guardar";
-        boton2.onClick.RemoveAllListeners();
-        boton2.onClick.AddListener(() =>
-        {
-            CartaManager.instancia.AgregarCartaAlStorage(carta);
-            CerrarPanelDecision(onDecisionMade);
-        });
-    }
-
-    // Método auxiliar para cerrar el panel y limpiar
-    private void CerrarPanelDecision(System.Action onDecisionMade)
+    // 4. Configurar el botón 2 para "Cancelar" (descartar)
+    boton2.gameObject.SetActive(true);
+    boton2.GetComponentInChildren<TextMeshProUGUI>().text = "Cancelar";
+    boton2.onClick.RemoveAllListeners();
+    boton2.onClick.AddListener(() =>
     {
-        panel.SetActive(false);
-        boton3.gameObject.SetActive(true); // Restauramos la visibilidad por si se usa después
-        onDecisionMade?.Invoke();
-    }
+        Debug.Log("Carta de beneficio descartada.");
+        CerrarPanelDecision(onDecisionMade);
+    });
+}
+
+// ESTE MÉTODO ES EL MISMO, solo asegúrate de que esté
+private void CerrarPanelDecision(System.Action onDecisionMade)
+{
+    panel.SetActive(false);
+    boton3.gameObject.SetActive(true); // Restauramos la visibilidad
+    onDecisionMade?.Invoke();
+}
+
+
 
 }
