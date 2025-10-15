@@ -14,14 +14,11 @@ public class BonusUI : MonoBehaviour
     [Header("Panel de explicación")]
     public GameObject cardExplaining;
     public TextMeshProUGUI cardExplainingText;
-    public Button btnUsarCarta;
-    public Button btnCerrarPanel;
 
     [Header("Referencias del jugador")]
-    public MovePlayer jugador;
+    public MovePlayer jugador; // Asignar en el inspector
 
     private List<GameObject> storageSlots = new List<GameObject>();
-    private int cartaSeleccionadaIndex = -1;
 
     void Awake()
     {
@@ -35,19 +32,6 @@ public class BonusUI : MonoBehaviour
             slot.SetActive(false);
 
         cardExplaining.SetActive(false);
-
-        // Configurar botones del panel de explicación
-        if (btnUsarCarta != null)
-        {
-            btnUsarCarta.onClick.RemoveAllListeners();
-            btnUsarCarta.onClick.AddListener(UsarCartaSeleccionada);
-        }
-
-        if (btnCerrarPanel != null)
-        {
-            btnCerrarPanel.onClick.RemoveAllListeners();
-            btnCerrarPanel.onClick.AddListener(CerrarPanelExplicacion);
-        }
     }
 
     /// <summary>
@@ -58,12 +42,6 @@ public class BonusUI : MonoBehaviour
         // Apagar todos los slots primero
         foreach (var slot in storageSlots)
             slot.SetActive(false);
-
-        // Si el panel está abierto y la carta ya no existe, cerrarlo
-        if (cardExplaining.activeSelf && cartaSeleccionadaIndex >= cartas.Count)
-        {
-            CerrarPanelExplicacion();
-        }
 
         // Activar solo los necesarios
         for (int i = 0; i < cartas.Count && i < storageSlots.Count; i++)
@@ -80,21 +58,35 @@ public class BonusUI : MonoBehaviour
                 txt.text = $"{tipoIcono} {ObtenerResumenCarta(cartas[i])}";
             }
 
-            // Configurar botón para MOSTRAR INFO de la carta
+            // Configurar botón para usar la carta
             Button boton = slot.GetComponent<Button>();
             if (boton == null) 
                 boton = slot.AddComponent<Button>();
 
             int index = i; // Capturar índice para el closure
             boton.onClick.RemoveAllListeners();
-            boton.onClick.AddListener(() => MostrarInfoCarta(index, cartas[index]));
+            boton.onClick.AddListener(() => UsarCartaEnPosicion(index));
 
-            // Limpiar EventTriggers anteriores
+            // Configurar los eventos de hover
             EventTrigger trigger = slot.GetComponent<EventTrigger>();
-            if (trigger != null)
-            {
-                Destroy(trigger);
-            }
+            if (trigger == null) trigger = slot.AddComponent<EventTrigger>();
+            trigger.triggers.Clear();
+
+            // OnPointerEnter → mostrar explicación
+            EventTrigger.Entry entryEnter = new EventTrigger.Entry();
+            entryEnter.eventID = EventTriggerType.PointerEnter;
+            entryEnter.callback.AddListener((data) => {
+                MostrarExplicacion(cartas[index]);
+            });
+            trigger.triggers.Add(entryEnter);
+
+            // OnPointerExit → ocultar explicación
+            EventTrigger.Entry entryExit = new EventTrigger.Entry();
+            entryExit.eventID = EventTriggerType.PointerExit;
+            entryExit.callback.AddListener((data) => {
+                OcultarExplicacion();
+            });
+            trigger.triggers.Add(entryExit);
         }
     }
 
@@ -121,47 +113,25 @@ public class BonusUI : MonoBehaviour
         };
     }
 
-    /// <summary>
-    /// Muestra el panel de información de la carta al hacer clic
-    /// </summary>
-    private void MostrarInfoCarta(int index, Carta carta)
+    private void UsarCartaEnPosicion(int posicion)
     {
-        cartaSeleccionadaIndex = index;
+        if (CartaManager.instancia != null && jugador != null)
+        {
+            CartaManager.instancia.UsarCartaDelStorage(posicion, jugador);
+            Debug.Log($"🎯 Usando carta en posición {posicion}");
+        }
+    }
+
+    private void MostrarExplicacion(Carta carta)
+    {
         cardExplaining.SetActive(true);
         
         string tipoIcono = carta.accion.Contains("Avanza") || carta.accion == "RepiteTurno" ? "✨" : "⚡";
-        cardExplainingText.text = $"{tipoIcono} {carta.pregunta}\n\nHaz clic en 'Usar' para activar esta carta";
-        
-        Debug.Log($"Mostrando información de carta en posición {index}");
+        cardExplainingText.text = $"{tipoIcono} {carta.pregunta}\n\n💡 Haz clic para usar esta carta";
     }
 
-    /// <summary>
-    /// Usa la carta seleccionada actualmente
-    /// </summary>
-    private void UsarCartaSeleccionada()
-    {
-        if (cartaSeleccionadaIndex < 0)
-        {
-            Debug.LogWarning("No hay carta seleccionada");
-            return;
-        }
-
-        if (CartaManager.instancia != null && jugador != null)
-        {
-            CartaManager.instancia.UsarCartaDelStorage(cartaSeleccionadaIndex, jugador);
-            Debug.Log($"Usando carta en posición {cartaSeleccionadaIndex}");
-        }
-
-        CerrarPanelExplicacion();
-    }
-
-    /// <summary>
-    /// Cierra el panel de explicación
-    /// </summary>
-    private void CerrarPanelExplicacion()
+    private void OcultarExplicacion()
     {
         cardExplaining.SetActive(false);
-        cartaSeleccionadaIndex = -1;
-        Debug.Log("Panel de explicación cerrado");
     }
 }
