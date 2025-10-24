@@ -8,11 +8,11 @@ public class CartaEntry
 {
     public TipoCarta tipo = TipoCarta.Efecto;
 
-    // (opcional) nombre visible
-    public string nombre;
+    public string nombre;       // título visible de la carta de efecto
+    public string descripcion;  // ⬅️ NUEVO: texto que mostraremos en la UI
 
-    // Si es efecto:
     public TipoEfecto efecto;
-    public int pasos;   // para MoverRelativo (+/-)
-    public int turnos;  // para SaltarTurnos
+    public int pasos;
+    public int turnos;
 }
+

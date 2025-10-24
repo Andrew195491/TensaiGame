@@ -10,11 +10,11 @@
     { "pregunta": "Recurso natural clave en Angola", "respuesta1": "Petróleo", "respuesta2": "Cobre", "respuesta3": "Litio", "respuestaCorrecta": 1 }
   ],
   "beneficios": [
-    { "tipo": "Efecto", "nombre": "Avanza 2", "efecto": "MoverRelativo", "pasos": 2 },
-    { "tipo": "Efecto", "nombre": "Repite tirada", "efecto": "RepetirTirada" }
+    { "tipo":"Efecto","nombre":"Avanza 2","descripcion":"Avanzas 2 casillas.","efecto":"MoverRelativo","pasos":2 },
+    { "tipo":"Efecto","nombre":"Repite tirada","descripcion":"Juegas otra vez.","efecto":"RepetirTirada" }
   ],
   "penalidades": [
-    { "tipo": "Efecto", "nombre": "Retrocede 2", "efecto": "MoverRelativo", "pasos": -2 },
-    { "tipo": "Efecto", "nombre": "Pierde turno", "efecto": "SaltarTurnos", "turnos": 1 }
+    { "tipo":"Efecto","nombre":"Retrocede 2","descripcion":"Retrocedes 2 casillas.","efecto":"MoverRelativo","pasos":-2 },
+    { "tipo":"Efecto","nombre":"Pierde turno","descripcion":"Pierdes un turno.","efecto":"SaltarTurnos","turnos":1 }
   ]
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Random = UnityEngine.Random; // evita ambigüedad con System.Random
 
 public class CardEffectManager : MonoBehaviour
 {
@@ -13,25 +14,27 @@ public class CardEffectManager : MonoBehaviour
     public CartaUI cartaUI;
 
     [Header("Opcional")]
-    public GameManager gameManager; // arrástralo si quieres
+    public GameManager gameManager; // arrástralo o lo asigna el GameManager en Start
 
-    // Base de preguntas y barajas (sin repetición)
+    // Banco base (persistente) y barajas (consumibles sin repetición)
     private List<Carta> baseHistoria = new();
     private List<Carta> baseGeografia = new();
     private List<Carta> baseCiencia  = new();
 
     private readonly Dictionary<Tile.Categoria, List<Carta>> baraja = new();
 
-    // Efectos (con repetición)
-    private List<CartaEntry> beneficios = new();
+    // Efectos (permiten repetición)
+    private List<CartaEntry> beneficios  = new();
     private List<CartaEntry> penalidades = new();
 
+    // ---------------- Ciclo de vida ----------------
     void Awake()
     {
         CargarDesdeJson();
         InicializarBarajas();
     }
 
+    // ---------------- Carga JSON ----------------
     void CargarDesdeJson()
     {
         string json;
@@ -46,14 +49,15 @@ public class CardEffectManager : MonoBehaviour
         var db = JsonUtility.FromJson<CartasDB>(json);
         if (db == null) { Debug.LogError("JSON inválido"); return; }
 
-        baseHistoria  = db.historia  != null ? new List<Carta>(db.historia) : new List<Carta>();
+        baseHistoria  = db.historia  != null ? new List<Carta>(db.historia)  : new List<Carta>();
         baseGeografia = db.geografia != null ? new List<Carta>(db.geografia) : new List<Carta>();
-        baseCiencia   = db.ciencia   != null ? new List<Carta>(db.ciencia) : new List<Carta>();
+        baseCiencia   = db.ciencia   != null ? new List<Carta>(db.ciencia)   : new List<Carta>();
 
         beneficios  = db.beneficios  != null ? new List<CartaEntry>(db.beneficios)  : new List<CartaEntry>();
         penalidades = db.penalidades != null ? new List<CartaEntry>(db.penalidades) : new List<CartaEntry>();
 
-        Debug.Log($"[JSON] H={baseHistoria.Count} G={baseGeografia.Count} C={baseCiencia.Count} Beneficios={beneficios.Count} Penalidades={penalidades.Count}");
+        Debug.Log($"[JSON] H={baseHistoria.Count} G={baseGeografia.Count} C={baseCiencia.Count} " +
+                  $"Beneficios={beneficios.Count} Penalidades={penalidades.Count}");
     }
 
     void InicializarBarajas()
@@ -64,12 +68,13 @@ public class CardEffectManager : MonoBehaviour
         baraja[Tile.Categoria.Ciencia]   = new List<Carta>(baseCiencia);
     }
 
-    // ---------- Preguntas ----------
+    // ---------------- Preguntas ----------------
     Carta SacarPregunta(Tile.Categoria cat)
     {
         if (!baraja.ContainsKey(cat))
             baraja[cat] = new List<Carta>();
 
+        // Recargar cuando se agote (sin repetición hasta pasar por todas)
         if (baraja[cat].Count == 0)
         {
             switch (cat)
@@ -82,7 +87,7 @@ public class CardEffectManager : MonoBehaviour
 
         if (baraja[cat].Count == 0) return null;
 
-        int idx = UnityEngine.Random.Range(0, baraja[cat].Count);
+        int idx = Random.Range(0, baraja[cat].Count);
         Carta c = baraja[cat][idx];
         baraja[cat].RemoveAt(idx);
         return c;
@@ -91,10 +96,13 @@ public class CardEffectManager : MonoBehaviour
     int OpcionAleatoriaDistintaDe(int correcta1a3)
     {
         int pick;
-        do { pick = UnityEngine.Random.Range(1, 4); } while (pick == correcta1a3);
+        do { pick = Random.Range(1, 4); } while (pick == correcta1a3);
         return pick;
     }
 
+    /// <summary>
+    /// Muestra/Simula pregunta y devuelve true/false en callback según acierto.
+    /// </summary>
     public void HacerPregunta(Tile.Categoria categoria, bool esHumano, float probAciertoBot, Action<bool> onRespondida)
     {
         var carta = SacarPregunta(categoria);
@@ -107,7 +115,7 @@ public class CardEffectManager : MonoBehaviour
 
         if (cartaUI == null)
         {
-            bool sim = esHumano ? true : (UnityEngine.Random.value < probAciertoBot);
+            bool sim = esHumano ? true : (Random.value < probAciertoBot);
             onRespondida?.Invoke(sim);
             return;
         }
@@ -118,31 +126,101 @@ public class CardEffectManager : MonoBehaviour
         }
         else
         {
-            bool correcta = UnityEngine.Random.value < probAciertoBot;
+            bool correcta = Random.value < probAciertoBot;
             int seleccion = correcta ? carta.respuestaCorrecta : OpcionAleatoriaDistintaDe(carta.respuestaCorrecta);
-
             cartaUI.MostrarCartaBot(carta, seleccion, correcta, () => onRespondida?.Invoke(correcta));
         }
     }
 
-    // ---------- Efectos ----------
-    CartaEntry RandomBeneficio()  => beneficios.Count  > 0 ? beneficios[UnityEngine.Random.Range(0, beneficios.Count)] : null;
-    CartaEntry RandomPenalidad()  => penalidades.Count > 0 ? penalidades[UnityEngine.Random.Range(0, penalidades.Count)] : null;
+    // ---------------- Efectos (beneficios / penalidades) ----------------
+    CartaEntry RandomBeneficio()  => beneficios.Count  > 0 ? beneficios[Random.Range(0, beneficios.Count)]   : null;
+    CartaEntry RandomPenalidad()  => penalidades.Count > 0 ? penalidades[Random.Range(0, penalidades.Count)] : null;
 
-    public IEnumerator EjecutarBeneficioAleatorio(MovePlayer peon)
+    /// <summary>
+    /// Beneficio: HUMANO puede Guardar (se añade al inventario y no se aplica) o Descartar.
+    /// BOT: por defecto intenta guardar si hay espacio, si no lo ignora. (No aplica).
+    /// </summary>
+    public IEnumerator EjecutarBeneficioAleatorio(MovePlayer peon, bool esHumano)
     {
         var e = RandomBeneficio();
-        if (e == null) { Debug.Log("[EFECTO] No hay beneficios."); yield break; }
-        yield return StartCoroutine(EjecutarEfectoCoroutine(e, peon));
+        if (e == null)
+        {
+            Debug.Log("[EFECTO] No hay beneficios.");
+            yield break;
+        }
+
+        string titulo = string.IsNullOrEmpty(e.nombre) ? "Beneficio" : e.nombre;
+        string desc   = e.descripcion;
+
+        if (esHumano)
+        {
+            bool? decision = null; // true=guardar, false=descartar
+            cartaUI.MostrarBeneficioInteractivo(titulo, desc, d => decision = d);
+            while (decision == null) yield return null;
+
+            if (decision.Value)
+            {
+                // Guardar en inventario (NO se aplica ahora)
+                if (gameManager != null && gameManager.TryStoreBenefit(peon, (e.nombre ?? "").ToLowerInvariant()))
+                    Debug.Log("[EFECTO] Beneficio guardado en inventario.");
+                else
+                    Debug.LogWarning("[EFECTO] Inventario lleno. No se guarda el beneficio.");
+            }
+            else
+            {
+                Debug.Log("[EFECTO] Beneficio descartado.");
+            }
+        }
+        else
+        {
+            // Bot: muestra info y auto-cierra
+            bool uiCerrada = false;
+            cartaUI.MostrarEfectoAuto(titulo, desc, true, () => uiCerrada = true);
+            while (!uiCerrada) yield return null;
+
+            // Intenta guardar en inventario compartido o ignora si no hay.
+            if (gameManager != null && gameManager.TryStoreBenefit(peon, (e.nombre ?? "").ToLowerInvariant()))
+                Debug.Log("[EFECTO] Bot guardó el beneficio (inventario).");
+            else
+                Debug.Log("[EFECTO] Bot no guardó (inventario lleno/sin UI).");
+        }
     }
 
-    public IEnumerator EjecutarPenalidadAleatoria(MovePlayer peon)
+    /// <summary>
+    /// Penalidad: HUMANO pulsa Aceptar para aplicar. BOT aplica tras mostrarla.
+    /// </summary>
+    public IEnumerator EjecutarPenalidadAleatoria(MovePlayer peon, bool esHumano)
     {
         var e = RandomPenalidad();
-        if (e == null) { Debug.Log("[EFECTO] No hay penalidades."); yield break; }
-        yield return StartCoroutine(EjecutarEfectoCoroutine(e, peon));
+        if (e == null)
+        {
+            Debug.Log("[EFECTO] No hay penalidades.");
+            yield break;
+        }
+
+        string titulo = string.IsNullOrEmpty(e.nombre) ? "Penalidad" : e.nombre;
+        string desc   = e.descripcion;
+
+        if (esHumano)
+        {
+            bool pulsado = false;
+            cartaUI.MostrarPenalidadInteractiva(titulo, desc, () => pulsado = true);
+            while (!pulsado) yield return null;
+
+            // Aplica al aceptar
+            yield return StartCoroutine(EjecutarEfectoCoroutine(e, peon));
+        }
+        else
+        {
+            bool uiCerrada = false;
+            cartaUI.MostrarEfectoAuto(titulo, desc, false, () => uiCerrada = true);
+            while (!uiCerrada) yield return null;
+
+            yield return StartCoroutine(EjecutarEfectoCoroutine(e, peon));
+        }
     }
 
+    // ---------------- Aplicación de efectos ----------------
     IEnumerator EjecutarEfectoCoroutine(CartaEntry e, MovePlayer peon)
     {
         string nombre = string.IsNullOrEmpty(e.nombre) ? e.efecto.ToString() : e.nombre;
