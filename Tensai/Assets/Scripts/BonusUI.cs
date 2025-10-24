@@ -13,7 +13,6 @@ public class BonusUI : MonoBehaviour
     // ============================================
     // SECCIÓN 1: DECLARACIÓN DE VARIABLES
     // ============================================
-    
     [Header("Slots de almacenamiento")]
     // Estos son los 3 espacios visuales donde se muestran las cartas guardadas
     public GameObject storageCard1;
@@ -39,10 +38,11 @@ public class BonusUI : MonoBehaviour
     // Índice de la carta actualmente seleccionada (-1 = ninguna)
     private int cartaSeleccionadaIndex = -1;
 
+
+
     // ============================================
     // SECCIÓN 2: INICIALIZACIÓN
     // ============================================
-    
     void Awake()
     {
         // Agrupamos los 3 slots en una lista para iterar fácilmente sobre ellos
@@ -74,10 +74,11 @@ public class BonusUI : MonoBehaviour
         }
     }
 
+
+
     // ============================================
     // SECCIÓN 3: ACTUALIZACIÓN DE LA INTERFAZ
     // ============================================
-    
     /// <summary>
     /// Refresca los paneles visibles según la cantidad de cartas almacenadas.
     /// Se llama cada vez que el inventario de cartas cambia.
@@ -114,7 +115,7 @@ public class BonusUI : MonoBehaviour
 
             // Configuramos el botón del slot para mostrar información
             Button boton = slot.GetComponent<Button>();
-            if (boton == null) 
+            if (boton == null)
                 boton = slot.AddComponent<Button>(); // Si no existe, lo creamos
 
             // Capturamos el índice en una variable local (closure)
@@ -133,10 +134,12 @@ public class BonusUI : MonoBehaviour
         }
     }
 
+
+
+
     // ============================================
     // SECCIÓN 4: FUNCIONES AUXILIARES
     // ============================================
-    
     /// <summary>
     /// Convierte el tipo de acción de la carta en un texto corto y legible.
     /// Usado para mostrar un resumen en los slots de almacenamiento.
@@ -165,10 +168,12 @@ public class BonusUI : MonoBehaviour
         };
     }
 
+
+
+
     // ============================================
     // SECCIÓN 5: MANEJO DEL PANEL DE INFORMACIÓN
     // ============================================
-    
     /// <summary>
     /// Muestra el panel emergente con información detallada de la carta.
     /// Se ejecuta cuando el jugador hace clic en un slot de carta.
@@ -179,12 +184,12 @@ public class BonusUI : MonoBehaviour
         cartaSeleccionadaIndex = index;
         // Mostramos el panel
         cardExplaining.SetActive(true);
-        
+
         // Determinamos el icono según el tipo de carta
         string tipoIcono = carta.accion.Contains("Avanza") || carta.accion == "RepiteTurno" ? "✨" : "⚡";
         // Mostramos la pregunta/descripción de la carta e instrucciones
         cardExplainingText.text = $"{tipoIcono} {carta.pregunta}\n\nHaz clic en 'Usar' para activar esta carta";
-        
+
         Debug.Log($"Mostrando información de carta en posición {index}");
     }
 

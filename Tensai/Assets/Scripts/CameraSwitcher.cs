@@ -11,7 +11,6 @@ public class CameraSwitcher : MonoBehaviour, IPointerClickHandler
     // ============================================
     // SECCIÓN 1: DECLARACIÓN DE VARIABLES
     // ============================================
-    
     // Cámara principal que muestra la vista normal del juego
     public Camera mainCamera;
     
