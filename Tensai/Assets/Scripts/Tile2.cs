@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Tile : MonoBehaviour
+public class Tile2 : MonoBehaviour
 {
     public enum TipoCasilla { Pregunta, Neutral, Beneficio, Penalidad }
     public enum Categoria { Historia, Geografia, Ciencia }

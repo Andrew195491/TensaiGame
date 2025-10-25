@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 
-public class CartaUI : MonoBehaviour
+public class CartaUI2 : MonoBehaviour
 {
     [Header("Panel base")]
     public GameObject panel;

@@ -66,5 +66,9 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "Tensai.slnx"
+    "dotnet.defaultSolution": "Tensai.slnx",
+    "cSpell.enabledLanguageIds": [
+        "COBOL",
+        "ACUCOBOL"
+    ]
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Text.RegularExpressions;
 
-public class MovePlayer : MonoBehaviour
+public class MovePlayer2 : MonoBehaviour
 {
     [Header("Movimiento")]
     public float jumpHeight = 1.5f;

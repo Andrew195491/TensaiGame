@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine.UI;
 using System;
 
-public class DiceController : MonoBehaviour
+public class DiceController2 : MonoBehaviour
 {
     [Header("UI Jugador")]
     public TextMeshProUGUI diceText;

@@ -8,7 +8,7 @@ using System.Collections;
 ///  - Seguimiento SOLO horizontal (no "saltos" verticales con la ficha).
 ///  - Transición suave al cambiar de objetivo y opción de esperar hasta llegar.
 /// </summary>
-public class ThirdPersonCameraHybrid : MonoBehaviour
+public class ThirdPersonCameraHybrid2 : MonoBehaviour
 {
     [Header("Follow Base")]
     public Transform target;              // objetivo actual

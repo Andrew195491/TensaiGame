@@ -2,14 +2,14 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-public class CartaManager : MonoBehaviour
+public class CartaManager2 : MonoBehaviour
 {
     [Header("Origen de datos")]
     [Tooltip("Si se deja vacío, cargará Resources/cartas.json")]
     public TextAsset cartasJsonOverride; // opcional: arrastra un TextAsset distinto si quieres
 
     [Header("UI")]
-    public CartaUI cartaUI;
+    public CartaUI2 cartaUI2;
 
     // Copias cargadas desde JSON
     private List<Carta> historia = new();
@@ -21,10 +21,11 @@ public class CartaManager : MonoBehaviour
 
     void Awake()
     {
-        CargarCartasDesdeJson();
+       // CargarCartasDesdeJson();
         InicializarBarajas();
     }
 
+/*
     void CargarCartasDesdeJson()
     {
         try
@@ -54,7 +55,7 @@ public class CartaManager : MonoBehaviour
             }
 
             historia  = db.historia  != null ? new List<Carta>(db.historia)   : new List<Carta>();
-            geografia = db.geografia != null ? new List<Carta>(db.geografia)  : new List<Carta>();
+            geografia = db.geografia != null ? new List<Carta>(db.geografi a)  : new List<Carta>();
             ciencia   = db.ciencia   != null ? new List<Carta>(db.ciencia)    : new List<Carta>();
 
             Debug.Log($"Cartas cargadas: H={historia.Count} G={geografia.Count} C={ciencia.Count}");
@@ -64,6 +65,7 @@ public class CartaManager : MonoBehaviour
             Debug.LogError($"Error cargando cartas JSON: {e.Message}\n{e.StackTrace}");
         }
     }
+*/
 
     void InicializarBarajas()
     {
@@ -118,7 +120,7 @@ public class CartaManager : MonoBehaviour
             return;
         }
 
-        if (cartaUI == null)
+        if (cartaUI2 == null)
         {
             Debug.LogWarning("CartaUI no asignado. Se simula sin UI.");
             bool correctSim = esHumano ? true : (UnityEngine.Random.value < probAciertoBot);
@@ -128,14 +130,14 @@ public class CartaManager : MonoBehaviour
 
         if (esHumano)
         {
-            cartaUI.MostrarCartaJugador(carta, onRespondida);
+            cartaUI2.MostrarCartaJugador(carta, onRespondida);
         }
         else
         {
             bool correcta = UnityEngine.Random.value < probAciertoBot;
             int seleccion = correcta ? carta.respuestaCorrecta : OpcionAleatoriaDistintaDe(carta.respuestaCorrecta);
 
-            cartaUI.MostrarCartaBot(
+            cartaUI2.MostrarCartaBot(
                 carta,
                 seleccion,
                 correcta,
@@ -147,7 +149,7 @@ public class CartaManager : MonoBehaviour
     // (Opcional) Llamar en runtime si quieres recargar el JSON sin reiniciar escena
     public void RecargarDesdeJson()
     {
-        CargarCartasDesdeJson();
+       // CargarCartasDesdeJson();
         InicializarBarajas();
         Debug.Log("Cartas recargadas desde JSON.");
     }
