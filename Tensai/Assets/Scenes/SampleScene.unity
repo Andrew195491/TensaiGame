@@ -1014,13 +1014,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bef0228fe244b0340bb6ccd5a65a18bb, type: 3}
+  m_Script: {fileID: 11500000, guid: 7bb334dda7e8941d5ac91e6d021d13e4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThirdPersonCameraHybrid2
   target: {fileID: 2018351554}
   distance: 5
   height: 2
+  focusBlendTime: 0.4
+  allowUserOrbit: 1
   rotationSpeed: 0.2
+  minPitch: 5
+  maxPitch: 60
+  followHorizontalOnly: 1
+  targetTravelSpeed: 8
+  targetArriveThreshold: 0.05
 --- !u!1 &359536051
 GameObject:
   m_ObjectHideFlags: 0
@@ -2534,7 +2541,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardEffectManager: {fileID: 942347879}
   dadoUI: {fileID: 696546690}
-  thirdPersonCam: {fileID: 0}
+  thirdPersonCam: {fileID: 330585548}
   jugador: {fileID: 0}
   numeroBots: 3
   prefabsBots:
