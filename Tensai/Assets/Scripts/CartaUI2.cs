@@ -1,3 +1,7 @@
+
+// ============================================
+// CartaUI2.cs (Actualizado)
+// ============================================
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -8,10 +12,10 @@ public class CartaUI2 : MonoBehaviour
 {
     [Header("Panel base")]
     public GameObject panel;
-    public Image panelFondo;                 // opcional: para teñir el fondo
+    public Image panelFondo;
 
     [Header("Vista pregunta")]
-    public GameObject bloqueRespuestas;      // padre de botones+textos (preguntas)
+    public GameObject bloqueRespuestas;
     public TextMeshProUGUI textoPregunta;
     public TextMeshProUGUI textoRespuesta1;
     public TextMeshProUGUI textoRespuesta2;
@@ -25,10 +29,9 @@ public class CartaUI2 : MonoBehaviour
     public TextMeshProUGUI textoDescripcion;
 
     [Header("Vista efecto (botones)")]
-    public GameObject bloquePenalidad;       // contenedor con 1 botón
+    public GameObject bloquePenalidad;
     public Button btnAceptarPenalidad;
-
-    public GameObject bloqueBeneficio;       // contenedor con 2 botones
+    public GameObject bloqueBeneficio;
     public Button btnDescartarBeneficio;
     public Button btnGuardarBeneficio;
 
@@ -38,29 +41,24 @@ public class CartaUI2 : MonoBehaviour
     public Color colorNeutral = Color.white;
     public float delayCierreJugador = 1.5f;
     public float delayCierreBot = 1.8f;
-    public float delayEfectoAuto = 1.6f;     // para bots (auto)
+    public float delayEfectoAuto = 1.6f;
 
-    // estado interno
-    private Carta cartaActual;
-    private Action<bool> onRespondida;       // preguntas
-
-    // callbacks para efectos
+    private Carta2 cartaActual;
+    private Action<bool> onRespondida;
     private Action onAceptarPenalidadCB;
-    private Action<bool> onBeneficioDecisionCB; // true=guardar, false=descartar
+    private Action<bool> onBeneficioDecisionCB;
 
-    // cache colores
     private bool defaultsCacheados = false;
     private Color defaultBtn1, defaultBtn2, defaultBtn3;
     private Color defaultTxt1, defaultTxt2, defaultTxt3;
 
-    private readonly Color colOK  = new Color(0.2f, 0.8f, 0.2f);
+    private readonly Color colOK = new Color(0.2f, 0.8f, 0.2f);
     private readonly Color colBAD = new Color(0.9f, 0.25f, 0.25f);
     private readonly Color colCOR = new Color(1f, 0.9f, 0.2f);
 
     void Start()
     {
         if (panel) panel.SetActive(false);
-
         if (boton1) boton1.onClick.AddListener(() => PulsarJugador(1));
         if (boton2) boton2.onClick.AddListener(() => PulsarJugador(2));
         if (boton3) boton3.onClick.AddListener(() => PulsarJugador(3));
@@ -95,58 +93,46 @@ public class CartaUI2 : MonoBehaviour
     void CachearColores()
     {
         if (defaultsCacheados) return;
-
         if (boton1 && boton1.targetGraphic) defaultBtn1 = boton1.targetGraphic.color; else defaultBtn1 = Color.white;
         if (boton2 && boton2.targetGraphic) defaultBtn2 = boton2.targetGraphic.color; else defaultBtn2 = Color.white;
         if (boton3 && boton3.targetGraphic) defaultBtn3 = boton3.targetGraphic.color; else defaultBtn3 = Color.white;
-
         defaultTxt1 = textoRespuesta1 ? textoRespuesta1.color : Color.white;
         defaultTxt2 = textoRespuesta2 ? textoRespuesta2.color : Color.white;
         defaultTxt3 = textoRespuesta3 ? textoRespuesta3.color : Color.white;
-
         defaultsCacheados = true;
     }
 
     void ResetVisual()
     {
         if (panelFondo) panelFondo.color = colorNeutral;
-
-        if (bloqueRespuestas) bloqueRespuestas.SetActive(false); // por defecto oculto (se activa en pregunta)
+        if (bloqueRespuestas) bloqueRespuestas.SetActive(false);
         if (bloquePenalidad) bloquePenalidad.SetActive(false);
         if (bloqueBeneficio) bloqueBeneficio.SetActive(false);
-
         if (textoTituloEfecto) textoTituloEfecto.text = string.Empty;
-        if (textoDescripcion)  textoDescripcion.text  = string.Empty;
+        if (textoDescripcion) textoDescripcion.text = string.Empty;
 
-        // reset colores respuestas
         CachearColores();
         if (boton1 && boton1.targetGraphic) boton1.targetGraphic.color = defaultBtn1;
         if (boton2 && boton2.targetGraphic) boton2.targetGraphic.color = defaultBtn2;
         if (boton3 && boton3.targetGraphic) boton3.targetGraphic.color = defaultBtn3;
-
         if (textoRespuesta1) textoRespuesta1.color = defaultTxt1;
         if (textoRespuesta2) textoRespuesta2.color = defaultTxt2;
         if (textoRespuesta3) textoRespuesta3.color = defaultTxt3;
-
         if (boton1) boton1.interactable = true;
         if (boton2) boton2.interactable = true;
         if (boton3) boton3.interactable = true;
     }
 
-    // ===================== PREGUNTA: JUGADOR =====================
-    public void MostrarCartaJugador(Carta carta, Action<bool> callback)
+    public void MostrarCartaJugador(Carta2 carta, Action<bool> callback)
     {
         cartaActual = carta;
         onRespondida = callback;
-
         ResetVisual();
         if (bloqueRespuestas) bloqueRespuestas.SetActive(true);
-
-        if (textoPregunta)   textoPregunta.text   = carta.pregunta;
+        if (textoPregunta) textoPregunta.text = carta.pregunta;
         if (textoRespuesta1) textoRespuesta1.text = carta.respuesta1;
         if (textoRespuesta2) textoRespuesta2.text = carta.respuesta2;
         if (textoRespuesta3) textoRespuesta3.text = carta.respuesta3;
-
         if (panel) panel.SetActive(true);
     }
 
@@ -158,15 +144,12 @@ public class CartaUI2 : MonoBehaviour
             onRespondida?.Invoke(true);
             return;
         }
-
         if (boton1) boton1.interactable = false;
         if (boton2) boton2.interactable = false;
         if (boton3) boton3.interactable = false;
-
         bool correcta = (seleccion == cartaActual.respuestaCorrecta);
         PintarSeleccion(seleccion, correcta);
         if (!correcta) PintarCorrecta(cartaActual.respuestaCorrecta);
-
         StartCoroutine(CerrarTras(delayCierreJugador, correcta));
     }
 
@@ -180,27 +163,21 @@ public class CartaUI2 : MonoBehaviour
         cb?.Invoke(resultado);
     }
 
-    // ===================== PREGUNTA: BOT =====================
-    public void MostrarCartaBot(Carta carta, int seleccion, bool esCorrecta, Action alCerrar)
+    public void MostrarCartaBot(Carta2 carta, int seleccion, bool esCorrecta, Action alCerrar)
     {
         cartaActual = carta;
         onRespondida = null;
-
         ResetVisual();
         if (bloqueRespuestas) bloqueRespuestas.SetActive(true);
-
-        if (textoPregunta)   textoPregunta.text   = carta.pregunta;
+        if (textoPregunta) textoPregunta.text = carta.pregunta;
         if (textoRespuesta1) textoRespuesta1.text = carta.respuesta1;
         if (textoRespuesta2) textoRespuesta2.text = carta.respuesta2;
         if (textoRespuesta3) textoRespuesta3.text = carta.respuesta3;
-
         if (boton1) boton1.interactable = false;
         if (boton2) boton2.interactable = false;
         if (boton3) boton3.interactable = false;
-
         PintarSeleccion(seleccion, esCorrecta);
         if (!esCorrecta) PintarCorrecta(carta.respuestaCorrecta);
-
         if (panel) panel.SetActive(true);
         StartCoroutine(CerrarBotTras(delayCierreBot, alCerrar));
     }
@@ -212,45 +189,34 @@ public class CartaUI2 : MonoBehaviour
         alCerrar?.Invoke();
     }
 
-    // ===================== EFECTO: PENALIDAD (1 botón) =====================
     public void MostrarPenalidadInteractiva(string titulo, string descripcion, Action onAceptar)
     {
         ResetVisual();
-
         if (panelFondo) panelFondo.color = colorPenalidad;
         if (textoTituloEfecto) textoTituloEfecto.text = string.IsNullOrEmpty(titulo) ? "Penalidad" : titulo;
-        if (textoDescripcion)  textoDescripcion.text  = string.IsNullOrEmpty(descripcion) ? "" : descripcion;
-
+        if (textoDescripcion) textoDescripcion.text = string.IsNullOrEmpty(descripcion) ? "" : descripcion;
         onAceptarPenalidadCB = onAceptar;
-
         if (bloquePenalidad) bloquePenalidad.SetActive(true);
         if (panel) panel.SetActive(true);
     }
 
-    // ===================== EFECTO: BENEFICIO (2 botones) =====================
     public void MostrarBeneficioInteractivo(string titulo, string descripcion, Action<bool> onDecision)
     {
         ResetVisual();
-
         if (panelFondo) panelFondo.color = colorBeneficio;
         if (textoTituloEfecto) textoTituloEfecto.text = string.IsNullOrEmpty(titulo) ? "Beneficio" : titulo;
-        if (textoDescripcion)  textoDescripcion.text  = string.IsNullOrEmpty(descripcion) ? "" : descripcion;
-
+        if (textoDescripcion) textoDescripcion.text = string.IsNullOrEmpty(descripcion) ? "" : descripcion;
         onBeneficioDecisionCB = onDecision;
-
         if (bloqueBeneficio) bloqueBeneficio.SetActive(true);
         if (panel) panel.SetActive(true);
     }
 
-    // ===================== EFECTO: AUTO (bots) =====================
     public void MostrarEfectoAuto(string titulo, string descripcion, bool esBeneficio, Action onCerrada)
     {
         ResetVisual();
-
         if (panelFondo) panelFondo.color = esBeneficio ? colorBeneficio : colorPenalidad;
         if (textoTituloEfecto) textoTituloEfecto.text = string.IsNullOrEmpty(titulo) ? (esBeneficio ? "Beneficio" : "Penalidad") : titulo;
-        if (textoDescripcion)  textoDescripcion.text  = string.IsNullOrEmpty(descripcion) ? "" : descripcion;
-
+        if (textoDescripcion) textoDescripcion.text = string.IsNullOrEmpty(descripcion) ? "" : descripcion;
         if (panel) panel.SetActive(true);
         StartCoroutine(AutoCerrarEfecto(onCerrada));
     }
@@ -262,7 +228,6 @@ public class CartaUI2 : MonoBehaviour
         onCerrada?.Invoke();
     }
 
-    // ===================== Pintura y cierre =====================
     void PintarSeleccion(int idx, bool ok)
     {
         Button b = idx == 1 ? boton1 : (idx == 2 ? boton2 : boton3);

@@ -201,8 +201,8 @@ GameObject:
   - component: {fileID: 18534670}
   - component: {fileID: 18534669}
   - component: {fileID: 18534668}
-  - component: {fileID: 18534672}
   - component: {fileID: 18534673}
+  - component: {fileID: 18534674}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -296,7 +296,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &18534672
+--- !u!114 &18534673
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -305,12 +305,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 18534666}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d692b703b9621d4e81632f0239e5ddc, type: 3}
+  m_Script: {fileID: 11500000, guid: 65a7a782fd0dd8e46a218624d31df51d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxSlots: 3
+  slots: []
+--- !u!114 &18534674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 18534666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2105d5a79df624c7caf9c0540e06537f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CartaUI2
   panel: {fileID: 2107932056}
   panelFondo: {fileID: 640768078}
-  bloqueRespuestas: {fileID: 736411621}
+  bloqueRespuestas: {fileID: 2107932056}
   textoPregunta: {fileID: 1464690558}
   textoRespuesta1: {fileID: 2004191103}
   textoRespuesta2: {fileID: 926218638}
@@ -331,20 +345,6 @@ MonoBehaviour:
   delayCierreJugador: 1.5
   delayCierreBot: 1.8
   delayEfectoAuto: 1.6
---- !u!114 &18534673
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 18534666}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65a7a782fd0dd8e46a218624d31df51d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxSlots: 3
-  slots: []
 --- !u!4 &28706955 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
@@ -617,17 +617,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1814243382}
     m_Modifications:
-    - target: {fileID: 1560680165527786275, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 58cd4a3eaebd60f41a4d5be8d7246b63, type: 2}
     - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: tipo
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: categoria
-      value: 5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -681,7 +677,6 @@ PrefabInstance:
 --- !u!1 &166610766
 GameObject:
   m_ObjectHideFlags: 0
-<<<<<<< HEAD
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -817,66 +812,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 166610766}
   m_CullTransparentMesh: 1
-=======
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1814243382}
-    m_Modifications:
-    - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: categoria
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 4.87
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -2.08
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8030578171304121352, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_Name
-      value: Tile (7)
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
->>>>>>> Eddy
 --- !u!1 &283420693
 GameObject:
   m_ObjectHideFlags: 0
@@ -1085,14 +1020,7 @@ MonoBehaviour:
   target: {fileID: 2018351554}
   distance: 5
   height: 2
-  focusBlendTime: 0.6
-  allowUserOrbit: 1
   rotationSpeed: 0.2
-  minPitch: 5
-  maxPitch: 60
-  followHorizontalOnly: 1
-  targetTravelSpeed: 8
-  targetArriveThreshold: 0.05
 --- !u!1 &359536051
 GameObject:
   m_ObjectHideFlags: 0
@@ -1683,14 +1611,7 @@ MonoBehaviour:
   target: {fileID: 2018351554}
   distance: 5
   height: 2
-  focusBlendTime: 0.6
-  allowUserOrbit: 1
   rotationSpeed: 0.2
-  minPitch: 5
-  maxPitch: 60
-  followHorizontalOnly: 1
-  targetTravelSpeed: 8
-  targetArriveThreshold: 0.05
 --- !u!114 &558234172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1991,7 +1912,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 696546688}
-  - component: {fileID: 696546689}
+  - component: {fileID: 696546690}
   m_Layer: 5
   m_Name: Dice
   m_TagString: Untagged
@@ -2019,7 +1940,7 @@ RectTransform:
   m_AnchoredPosition: {x: 200, y: -200.00003}
   m_SizeDelta: {x: 400, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &696546689
+--- !u!114 &696546690
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2028,9 +1949,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 696546687}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 353a747a3247b6d41b59147c3135a822, type: 3}
+  m_Script: {fileID: 11500000, guid: a3cb86e040f29406f9b29b92bc4cbe34, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::DiceController2
   diceText: {fileID: 985960591}
   diceButton: {fileID: 1199613239}
   minNumber: 1
@@ -2552,6 +2473,7 @@ GameObject:
   - component: {fileID: 942347876}
   - component: {fileID: 942347878}
   - component: {fileID: 942347879}
+  - component: {fileID: 942347880}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2571,97 +2493,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 700789c14730072468dc0370c3d81d57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-<<<<<<< HEAD
-  cartasJsonOverride: {fileID: 4900000, guid: 5367a84edd2df6c4db89e07d08303ab2, type: 3}
-=======
-  historia:
-  - pregunta: "\xBFEn qu\xE9 a\xF1o obtuvo Angola su independencia de Portugal?"
-    respuesta1: 1975
-    respuesta2: 1961
-    respuesta3: 1980
-    respuestaCorrecta: 1
-  - pregunta: "\xBFQu\xE9 figura hist\xF3rica fue el primer presidente de Angola?"
-    respuesta1: Agostinho Neto
-    respuesta2: "Jos\xE9 Eduardo dos Santos"
-    respuesta3: Jonas Savimbi
-    respuestaCorrecta: 1
-  - pregunta: "\xBFQu\xE9 movimiento pol\xEDtico luch\xF3 por la independencia de
-      Angola?"
-    respuesta1: FRELIMO
-    respuesta2: ANC
-    respuesta3: MPLA
-    respuestaCorrecta: 3
-  - pregunta: "\xBFQu\xE9 conflicto afect\xF3 a Angola despu\xE9s de su independencia?"
-    respuesta1: Segunda Guerra Mundial
-    respuesta2: Guerra civil
-    respuesta3: Guerra del Golfo
-    respuestaCorrecta: 2
-  - pregunta: "\xBFQu\xE9 pa\xEDs apoy\xF3 principalmente al UNITA durante la guerra
-      civil angole\xF1a?"
-    respuesta1: Cuba
-    respuesta2: "Uni\xF3n Sovi\xE9tica"
-    respuesta3: Estados Unidos
-    respuestaCorrecta: 3
-  geografia:
-  - pregunta: "\xBFCu\xE1l es la capital de Angola?"
-    respuesta1: Luanda
-    respuesta2: Benguela
-    respuesta3: Huambo
-    respuestaCorrecta: 1
-  - pregunta: "\xBFQu\xE9 gran r\xEDo atraviesa el sur de Angola?"
-    respuesta1: Zambeze
-    respuesta2: "R\xEDo Cunene"
-    respuesta3: Amazonas
-    respuestaCorrecta: 2
-  - pregunta: "\xBFCon qu\xE9 pa\xEDs no limita Angola?"
-    respuesta1: Zambia
-    respuesta2: Namibia
-    respuesta3: Tanzania
-    respuestaCorrecta: 3
-  - pregunta: "\xBFQu\xE9 provincia de Angola est\xE1 separada del resto del pa\xEDs
-      y rodeada por RDC y el mar?"
-    respuesta1: Cabinda
-    respuesta2: "Bi\xE9"
-    respuesta3: Cuanza Sul
-    respuestaCorrecta: 1
-  - pregunta: "\xBFQu\xE9 oc\xE9ano ba\xF1a las costas de Angola?"
-    respuesta1: "\xCDndico"
-    respuesta2: "Atl\xE1ntico"
-    respuesta3: "Pac\xEDfico"
-    respuestaCorrecta: 2
-  ciencia:
-  - pregunta: "\xBFQu\xE9 bioma domina el norte de Angola?"
-    respuesta1: Sabana
-    respuesta2: Desierto
-    respuesta3: Selva tropical
-    respuestaCorrecta: 3
-  - pregunta: "\xBFCu\xE1l es uno de los recursos naturales m\xE1s importantes de
-      Angola?"
-    respuesta1: Cobre
-    respuesta2: "Petr\xF3leo"
-    respuesta3: Oro
-    respuestaCorrecta: 2
-  - pregunta: "\xBFQu\xE9 animal emblem\xE1tico se encuentra en los parques nacionales
-      de Angola?"
-    respuesta1: Elefante africano
-    respuesta2: Tigre
-    respuesta3: Oso polar
-    respuestaCorrecta: 1
-  - pregunta: "\xBFQu\xE9 especie marina es com\xFAn en las costas angole\xF1as?"
-    respuesta1: "Tibur\xF3n blanco"
-    respuesta2: "Salm\xF3n"
-    respuesta3: Sardina
-    respuestaCorrecta: 3
-  - pregunta: "\xBFQu\xE9 fen\xF3meno natural amenaza algunas zonas de Angola durante
-      la estaci\xF3n lluviosa?"
-    respuesta1: Terremotos
-    respuesta2: Inundaciones
-    respuesta3: Tornados
-    respuestaCorrecta: 2
+  historia: []
+  geografia: []
+  ciencia: []
+  cartaUI: {fileID: 0}
+  dadoController: {fileID: 0}
+  bonusUI: {fileID: 0}
+  replacementUI: {fileID: 0}
+  cartasEspecialesJSON: {fileID: 0}
   benefits: []
   penalty: []
->>>>>>> Eddy
-  cartaUI: {fileID: 18534672}
+  storage: []
+  maxStorage: 3
 --- !u!4 &942347877
 Transform:
   m_ObjectHideFlags: 0
@@ -2690,9 +2533,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardEffectManager: {fileID: 942347879}
-  dadoUI: {fileID: 696546689}
-  thirdPersonCam: {fileID: 330585548}
-  jugador: {fileID: 2018351555}
+  dadoUI: {fileID: 696546690}
+  thirdPersonCam: {fileID: 0}
+  jugador: {fileID: 0}
   numeroBots: 3
   prefabsBots:
   - {fileID: 8993786202980767660, guid: 48f4c0aaf1c6b5447a7925086486e675, type: 3}
@@ -2718,8 +2561,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cartasJsonOverride: {fileID: 4900000, guid: 5367a84edd2df6c4db89e07d08303ab2, type: 3}
-  cartaUI: {fileID: 18534672}
+  cartaUI: {fileID: 0}
   gameManager: {fileID: 942347878}
+--- !u!114 &942347880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 942347875}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7e73c51d8e354cb2a00afa0d80f4fdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CartaManager2
+  cartasJsonOverride: {fileID: 0}
+  cartaUI: {fileID: 0}
 --- !u!1 &944220923
 GameObject:
   m_ObjectHideFlags: 0
@@ -4011,7 +3868,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 51.400024, y: 51.30005}
+  m_AnchoredPosition: {x: 51.400146, y: 51.30005}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1507689313
@@ -4304,74 +4161,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
-<<<<<<< HEAD
-=======
---- !u!1001 &1716247985
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1814243382}
-    m_Modifications:
-    - target: {fileID: 1560680165527786275, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 9875a245ac49007498213638a307faa1, type: 2}
-    - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: categoria
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -10
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8030578171304121352, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
-      propertyPath: m_Name
-      value: Tile (2)
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
->>>>>>> Eddy
 --- !u!1 &1763393385
 GameObject:
   m_ObjectHideFlags: 0
@@ -5184,9 +4973,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2018351550}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c422f69ccb9b6d4581e2b7d5292d4bf, type: 3}
+  m_Script: {fileID: 11500000, guid: faba834ac226043a0a1c5583e3e4d392, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovePlayer2
   jumpHeight: 1.5
   moveDuration: 0.5
   currentIndex: 0
@@ -5354,7 +5143,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2181174484428148724, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: categoria
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7626455863649951849, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
       propertyPath: m_LocalPosition.x

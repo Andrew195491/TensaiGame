@@ -1,3 +1,7 @@
+
+// ============================================
+// MovePlayer2.cs (Actualizado - cambio GetCurrentTile)
+// ============================================
 using UnityEngine;
 using System.Collections;
 using System.Text.RegularExpressions;
@@ -95,20 +99,19 @@ public class MovePlayer2 : MonoBehaviour
         isMoving = false;
     }
 
-    public Tile.Categoria CategoriaActual()
+    public Tile2.Categoria CategoriaActual()
     {
-        Tile tile = GetCurrentTile();
-        return tile != null ? tile.categoria : Tile.Categoria.Historia;
+        Tile2 tile = GetCurrentTile();
+        return tile != null ? tile.categoria : Tile2.Categoria.Historia;
     }
 
-    public Tile GetCurrentTile()
+    public Tile2 GetCurrentTile()
     {
         if (tiles == null || tiles.Length == 0) return null;
         var t = tiles[currentIndex];
-        return t != null ? t.GetComponent<Tile>() : null;
+        return t != null ? t.GetComponent<Tile2>() : null;
     }
 
-    // Útil para efectos tipo “teleport”
     public void TeleportAIndiceSeguro(int indice)
     {
         Transform tablero = GameObject.Find("Board")?.transform;
