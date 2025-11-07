@@ -216,9 +216,15 @@ public class CartaManager_U : MonoBehaviour
         return pick;
     }
 
-    // ============================================
-    // SECCIÓN 7: CARTAS ESPECIALES
-    // ============================================
+// ============================================
+// CartaManager_U.cs (Fragmento modificado)
+// ============================================
+
+// ... (Código anterior sin cambios) ...
+
+// ============================================
+// SECCIÓN 7: CARTAS ESPECIALES
+// ============================================
 
     public Carta_U ObtenerCartaBeneficioAleatoria()
     {
@@ -235,15 +241,21 @@ public class CartaManager_U : MonoBehaviour
     /// <summary>
     /// Ejecuta una acción de beneficio sobre el jugador.
     /// Llamado desde MovePlayer_U cuando cae en casilla de beneficio.
+    /// Code name "Fase Final": Añadido 'Action onResuelto' para controlar el flujo de turnos.
     /// </summary>
-    public void EjecutarAccionBeneficio(MovePlayer_U jugador)
+    public void EjecutarAccionBeneficio(MovePlayer_U jugador, Action onResuelto)
     {
-        if (jugador == null) return;
+        if (jugador == null)
+        {
+            onResuelto?.Invoke(); // Resuelve inmediatamente si no hay jugador
+            return;
+        }
 
-        Carta_U carta = ObtenerCartaBeneficioAleatoria();
+        Carta_U carta = ObtenerCartaBeneficioAleatoria(); // <-- Ahora esto funcionará
         if (carta == null)
         {
             Debug.LogWarning("⚠️ No hay cartas de beneficio disponibles");
+            onResuelto?.Invoke(); // Resuelve inmediatamente si no hay carta
             return;
         }
 
@@ -255,7 +267,7 @@ public class CartaManager_U : MonoBehaviour
             cartaUI.MostrarBeneficio(
                 "¡Carta de Beneficio!",
                 carta.pregunta,
-                (guardar) =>
+                (guardar) => // Este es el callback que se ejecuta cuando el jugador decide
                 {
                     if (guardar)
                     {
@@ -265,28 +277,39 @@ public class CartaManager_U : MonoBehaviour
                     {
                         EjecutarBeneficio(carta, jugador);
                     }
+
+                    // Code name "Fase Final"
+                    // GATILLO DE RESOLUCIÓN: Avisa al GameManager que la UI se cerró.
+                    onResuelto?.Invoke();
                 }
             );
         }
         else
         {
-            // Si no hay UI, ejecutar directamente
+            // Si no hay UI, ejecutar y resolver directamente
             EjecutarBeneficio(carta, jugador);
+            onResuelto?.Invoke();
         }
     }
 
     /// <summary>
     /// Ejecuta una acción de penalidad sobre el jugador.
     /// Llamado desde MovePlayer_U cuando cae en casilla de penalidad.
+    /// Code name "Fase Final": Añadido 'Action onResuelto' para controlar el flujo de turnos.
     /// </summary>
-    public void EjecutarAccionPenalidad(MovePlayer_U jugador)
+    public void EjecutarAccionPenalidad(MovePlayer_U jugador, Action onResuelto)
     {
-        if (jugador == null) return;
+        if (jugador == null)
+        {
+            onResuelto?.Invoke(); // Resuelve inmediatamente
+            return;
+        }
 
-        Carta_U carta = ObtenerCartaPenalidadAleatoria();
+        Carta_U carta = ObtenerCartaPenalidadAleatoria(); // <-- Ahora esto funcionará
         if (carta == null)
         {
             Debug.LogWarning("⚠️ No hay cartas de penalidad disponibles");
+            onResuelto?.Invoke(); // Resuelve inmediatamente
             return;
         }
 
@@ -298,13 +321,21 @@ public class CartaManager_U : MonoBehaviour
             cartaUI.MostrarPenalidad(
                 "¡Carta de Penalidad!",
                 carta.pregunta,
-                () => EjecutarPenalidad(carta, jugador)
+                () => // Este es el callback que se ejecuta cuando el jugador cierra la UI
+                { 
+                    EjecutarPenalidad(carta, jugador);
+
+                    // Code name "Fase Final"
+                    // GATILLO DE RESOLUCIÓN: Avisa al GameManager que la UI se cerró.
+                    onResuelto?.Invoke();
+                }
             );
         }
         else
         {
-            // Si no hay UI, ejecutar directamente
+            // Si no hay UI, ejecutar y resolver directamente
             EjecutarPenalidad(carta, jugador);
+            onResuelto?.Invoke();
         }
     }
 
@@ -341,6 +372,9 @@ public class CartaManager_U : MonoBehaviour
             default: Debug.Log($"⚠️ Penalidad no reconocida: {carta.accion}"); break;
         }
     }
+
+    // ... (Resto del código sin cambios) ...
+
 
     // ============================================
     // SECCIÓN 8: INVENTARIO

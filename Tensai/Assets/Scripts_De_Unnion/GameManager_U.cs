@@ -238,6 +238,12 @@ public class GameManager_U : MonoBehaviour
         yield return StartCoroutine(ResolverTurno(bot, numero.Value, false));
     }
 
+    // ============================================
+    // GameManager_U.cs (Fragmento modificado)
+    // ============================================
+
+    // ... (Código anterior sin cambios) ...
+
     IEnumerator ResolverTurno(MovePlayer_U peon, int pasos, bool esHumano)
     {
         if (dadoUI != null) dadoUI.BloquearDado(true);
@@ -257,38 +263,77 @@ public class GameManager_U : MonoBehaviour
         switch (tile.tipo)
         {
             case Tile_U.TipoCasilla.Neutral:
+                // Code name "Fase Final"
+                // Para casillas neutras, esperamos un frame para simular "aceptar"
+                // y luego terminamos el turno.
+                yield return null;
                 TerminarTurnoORepetir(peon, esHumano);
                 break;
 
             case Tile_U.TipoCasilla.Pregunta:
-            {
-                bool? resultado = null;
-                cartaManager.HacerPregunta(tile.categoria, esHumano, ProbAciertoBots(), (bool correcta) => resultado = correcta);
-                while (resultado == null) yield return null;
-
-                if (resultado == false)
                 {
-                    yield return StartCoroutine(peon.Retroceder(pasos));
-                    ArrangeAllTiles();
+                    bool? resultado = null;
+                    // Esto ya espera correctamente la respuesta antes de continuar.
+                    cartaManager.HacerPregunta(tile.categoria, esHumano, ProbAciertoBots(), (bool correcta) => resultado = correcta);
+
+                    // Bucle de espera. El juego se pausa aquí.
+                    while (resultado == null) yield return null;
+
+                    if (resultado == false)
+                    {
+                        yield return StartCoroutine(peon.Retroceder(pasos));
+                        ArrangeAllTiles();
+                    }
+
+                    TerminarTurnoORepetir(peon, esHumano);
+                    break;
                 }
 
-                TerminarTurnoORepetir(peon, esHumano);
-                break;
-            }
-
             case Tile_U.TipoCasilla.Beneficio:
-                cartaManager.EjecutarAccionBeneficio(peon);
-                yield return new WaitForSeconds(0.5f);
-                TerminarTurnoORepetir(peon, esHumano);
-                break;
+                {
+                    // Code name "Fase Final"
+                    // variable 'resuelto' para esperar la decisión del jugador (Usar/Guardar).
+                    bool resuelto = false;
+
+                    // Pasamos una Action (callback) que CartaManager llamará
+                    // cuando la UI se cierre, poniendo 'resuelto' en true.
+                    cartaManager.EjecutarAccionBeneficio(peon, () => resuelto = true);
+
+                    // El bucle de espera. El juego se pausa aquí.
+                    while (!resuelto)
+                    {
+                        yield return null;
+                    }
+
+                    // La UI se ha cerrado, ahora podemos terminar el turno.
+                    TerminarTurnoORepetir(peon, esHumano);
+                    break;
+                }
 
             case Tile_U.TipoCasilla.Penalidad:
-                cartaManager.EjecutarAccionPenalidad(peon);
-                yield return new WaitForSeconds(0.5f);
-                TerminarTurnoORepetir(peon, esHumano);
-                break;
+                {
+                    // Code name "Fase Final"
+                    // variable 'resuelto' para esperar que el jugador "acepte" la penalidad.
+                    bool resuelto = false;
+
+                    // Pasamos una Action (callback) que CartaManager llamará
+                    // cuando la UI se cierre, poniendo 'resuelto' en true.
+                    cartaManager.EjecutarAccionPenalidad(peon, () => resuelto = true);
+
+                    // El bucle de espera. El juego se pausa aquí.
+                    while (!resuelto)
+                    {
+                        yield return null;
+                    }
+
+                    // La UI se ha cerrado, ahora podemos terminar el turno.
+                    TerminarTurnoORepetir(peon, esHumano);
+                    break;
+                }
         }
     }
+    // ... (Resto del código sin cambios) ...
+    
 
     // ============================================
     // SECCIÓN 6: CONTROL DE TURNO

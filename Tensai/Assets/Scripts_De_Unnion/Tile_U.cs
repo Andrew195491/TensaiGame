@@ -76,12 +76,39 @@ public class Tile_U : MonoBehaviour
     [Tooltip("Define el tipo de casilla en el tablero.")]
     public TipoCasilla tipo = TipoCasilla.Pregunta;
 
+    // Fase Final: La categoría solo se muestra en el inspector si el tipo es Pregunta
     [Header("Solo si es Pregunta")]
     [Tooltip("Categoría de pregunta asociada (solo válida si tipo = Pregunta).")]
-    public Categoria categoria = Categoria.Historia;
+    [SerializeField]
+    private Categoria _categoria = Categoria.Historia;
 
     // ============================================
-    // SECCIÓN 3: UTILIDAD / FUNCIONAMIENTO
+    // SECCIÓN 3: PROPIEDADES CON VALIDACIÓN
+    // ============================================
+
+    /// <summary>
+    /// Propiedad pública para acceder a la categoría con validación.
+    /// Fase Final: Solo retorna categoría si el tipo es Pregunta, sino retorna Historia por defecto.
+    /// </summary>
+    public Categoria categoria
+    {
+        get
+        {
+            if (tipo == TipoCasilla.Pregunta)
+                return _categoria;
+            else
+                return Categoria.Historia; // Valor por defecto cuando no es pregunta
+        }
+        set
+        {
+            // Fase Final: Solo permite cambiar la categoría si el tipo es Pregunta
+            if (tipo == TipoCasilla.Pregunta)
+                _categoria = value;
+        }
+    }
+
+    // ============================================
+    // SECCIÓN 4: UTILIDAD / FUNCIONAMIENTO
     // ============================================
 
     /// <summary>
@@ -91,12 +118,27 @@ public class Tile_U : MonoBehaviour
 
     /// <summary>
     /// Devuelve un texto descriptivo para depuración o UI.
+    /// Fase Final: Solo incluye la categoría si el tipo es Pregunta.
     /// </summary>
     public string ObtenerDescripcion()
     {
         if (tipo == TipoCasilla.Pregunta)
-            return $"Pregunta de {categoria}";
+            return $"Pregunta de {_categoria}";
+        
         return tipo.ToString();
+    }
+
+    // ============================================
+    // SECCIÓN 5: MÉTODO PARA EDITOR (OPCIONAL)
+    // ============================================
+
+    /// <summary>
+    /// Método usado por custom editors para determinar si mostrar la categoría.
+    /// Fase Final: Ayuda a los editores personalizados a mostrar/ocultar la categoría.
+    /// </summary>
+    public bool DebeMostrarCategoria()
+    {
+        return tipo == TipoCasilla.Pregunta;
     }
 }
 

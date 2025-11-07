@@ -2574,7 +2574,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 0
-  categoria: 2
+  _categoria: 0
 --- !u!1 &717150914 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8030578171304121352, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
@@ -2598,7 +2598,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 0
-  categoria: 1
+  _categoria: 0
 --- !u!1 &719828709
 GameObject:
   m_ObjectHideFlags: 0
@@ -3630,7 +3630,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 3
-  categoria: 0
+  _categoria: 0
 --- !u!1001 &969679421
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4780,7 +4780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 2
-  categoria: 0
+  _categoria: 0
 --- !u!1 &1153040814
 GameObject:
   m_ObjectHideFlags: 0
@@ -5256,7 +5256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 0
-  categoria: 1
+  _categoria: 0
 --- !u!1 &1309735242 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8030578171304121352, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
@@ -5275,7 +5275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 1
-  categoria: 0
+  _categoria: 0
 --- !u!1 &1329880140
 GameObject:
   m_ObjectHideFlags: 0
@@ -5850,7 +5850,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 0
-  categoria: 1
+  _categoria: 0
 --- !u!1 &1402161473 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8030578171304121352, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
@@ -5869,7 +5869,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 1
-  categoria: 0
+  _categoria: 0
 --- !u!1 &1464690556
 GameObject:
   m_ObjectHideFlags: 0
@@ -6794,7 +6794,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 2
-  categoria: 0
+  _categoria: 0
 --- !u!1 &1664871202
 GameObject:
   m_ObjectHideFlags: 0
@@ -7871,7 +7871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 1
-  categoria: 0
+  _categoria: 0
 --- !u!1 &1897328225 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8030578171304121352, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
@@ -7890,7 +7890,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 0
-  categoria: 2
+  _categoria: 0
 --- !u!1 &1910163894 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8030578171304121352, guid: 7187afb6923271149b8f00a7c6b3c4e9, type: 3}
@@ -8240,7 +8240,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 0
-  categoria: 0
+  _categoria: 0
 --- !u!1 &1979770738
 GameObject:
   m_ObjectHideFlags: 0
@@ -8761,7 +8761,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 3
-  categoria: 0
+  _categoria: 0
 --- !u!1001 &2054186560
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9031,7 +9031,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 2
-  categoria: 0
+  _categoria: 0
 --- !u!1001 &2081057582
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9119,7 +9119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 0
-  categoria: 0
+  _categoria: 0
 --- !u!1 &2107932056
 GameObject:
   m_ObjectHideFlags: 0
@@ -9498,7 +9498,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile_U
   tipo: 2
-  categoria: 0
+  _categoria: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

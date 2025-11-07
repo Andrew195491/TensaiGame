@@ -80,6 +80,9 @@ public class MovePlayer_U : MonoBehaviour
         return int.TryParse(t, out int n) ? n : 0;
     }
 
+
+    // ... (Código anterior sin cambios) ...
+
     // ============================================
     // SECCIÓN 4: MOVIMIENTO HACIA ADELANTE
     // ============================================
@@ -96,44 +99,33 @@ public class MovePlayer_U : MonoBehaviour
             yield return JumpTo(tiles[currentIndex].position);
         }
 
-        yield return new WaitForSeconds(0.5f);
+        // Code name "Fase Final"
+        // -----------------------------------------------------------------
+        // SE ELIMINA LA LÓGICA DE RESOLUCIÓN DE CASILLAS DE AQUÍ.
+        // La responsabilidad de resolver la casilla (Pregunta, Beneficio, etc.)
+        // se centraliza en 'GameManager_U.ResolverTurno' para evitar
+        // duplicidad de código y asegurar el flujo de turnos correcto.
+        // El GameManager esperará a que el salto termine y LUEGO
+        // resolverá la casilla.
+        // -----------------------------------------------------------------
 
-        // Determinar tipo de casilla actual y ejecutar acción
-        Tile_U tile = GetCurrentTile(); // CAMBIADO: Tile2 → Tile_U
+        /*
+        // CÓDIGO ANTIGUO ELIMINADO:
+        yield return new WaitForSeconds(0.5f);
+        Tile_U tile = GetCurrentTile(); 
         if (tile != null)
         {
-            // Convertir el tipo de casilla a comportamiento
-            if (tile.tipo == Tile_U.TipoCasilla.Neutral)
-            {
-                // Casilla neutral: no hace nada
-                Debug.Log("🔵 Casilla neutral - Sin acción");
-            }
-            else if (tile.tipo == Tile_U.TipoCasilla.Beneficio)
-            {
-                CartaManager_U.instancia.EjecutarAccionBeneficio(this);
-            }
-            else if (tile.tipo == Tile_U.TipoCasilla.Penalidad)
-            {
-                CartaManager_U.instancia.EjecutarAccionPenalidad(this);
-            }
-            else if (tile.tipo == Tile_U.TipoCasilla.Pregunta)
-            {
-                // Mostrar pregunta según la categoría
-                CartaManager_U.instancia.HacerPregunta(
-                    tile.categoria,
-                    true, // esHumano
-                    0.5f, // probabilidad bot (no aplica aquí)
-                    (correcta) =>
-                    {
-                        if (!correcta)
-                        {
-                            StartCoroutine(Retroceder(ultimaCantidadMovida));
-                        }
-                    }
-                );
-            }
+            if (tile.tipo == Tile_U.TipoCasilla.Neutral) { ... }
+            else if (tile.tipo == Tile_U.TipoCasilla.Beneficio) { ... }
+            else if (tile.tipo == Tile_U.TipoCasilla.Penalidad) { ... }
+            else if (tile.tipo == Tile_U.TipoCasilla.Pregunta) { ... }
         }
+        */
     }
+
+    // ... (Resto del código sin cambios) ...
+
+
 
     // ============================================
     // SECCIÓN 5: MOVIMIENTO HACIA ATRÁS
@@ -213,6 +205,9 @@ public class MovePlayer_U : MonoBehaviour
         transform.position = tablero.GetChild(currentIndex).position + Vector3.up * 1f;
     }
 
+
+    // ... (Código anterior sin cambios) ...
+    
     // ============================================
     // SECCIÓN 8: CONSULTAS Y UTILIDADES
     // ============================================
@@ -232,7 +227,16 @@ public class MovePlayer_U : MonoBehaviour
 
     public void ResponderCarta(bool correcta)
     {
+        // Code name "Fase Final"
+        // Esta lógica ahora es manejada íntegramente por GameManager_U
+        // en la corrutina 'ResolverTurno', que espera el resultado
+        // de 'HacerPregunta' y llama a 'Retroceder' si es necesario.
+        // Este método queda vacío para evitar conflictos.
+
+        /*
+        // CÓDIGO ANTIGUO ELIMINADO:
         if (!correcta)
             StartCoroutine(Retroceder(ultimaCantidadMovida));
+        */
     }
 }
