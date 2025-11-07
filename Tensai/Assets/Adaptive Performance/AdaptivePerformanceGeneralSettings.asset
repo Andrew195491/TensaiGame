@@ -43,4 +43,4 @@ MonoBehaviour:
   m_Name: Android Settings
   m_EditorClassIdentifier: Unity.AdaptivePerformance::UnityEngine.AdaptivePerformance.AdaptivePerformanceGeneralSettings
   m_LoaderManagerInstance: {fileID: -4118837388884300777}
-  m_InitManagerOnStart: 1
+  m_InitManagerOnStart: 0

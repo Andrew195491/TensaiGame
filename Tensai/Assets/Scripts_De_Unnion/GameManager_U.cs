@@ -20,6 +20,8 @@ public class GameManager_U : MonoBehaviour
     // ============================================
     // SECCIÓN 1: CONFIGURACIÓN GENERAL
     // ============================================
+    public BonusUI_U bonusUI;
+    private readonly Dictionary<MovePlayer_U, Carta_U> botPendingBenefit = new();
 
     public enum DificultadBot { Facil, Medio, Dificil }
 
@@ -147,6 +149,8 @@ public class GameManager_U : MonoBehaviour
             thirdPersonCam.SetUserControl(true);
         }
 
+        if (bonusUI != null) bonusUI.SetUsoHabilitado(false);
+
         ArrangeAllTiles();
         turnoIndex = 0;
         turnoEnCurso = false;
@@ -157,7 +161,12 @@ public class GameManager_U : MonoBehaviour
     // ============================================
     // SECCIÓN 4: BUCLE DE TURNOS PRINCIPAL
     // ============================================
-
+    public void QueueBotBenefit(MovePlayer_U bot, Carta_U carta)
+    {
+        if (bot == null || carta == null) return;
+        botPendingBenefit[bot] = carta;
+        Debug.Log($"🤖 [{Nombre(bot)}] guardó beneficio para el próximo turno: {carta.accion}");
+    }
     IEnumerator LoopTurnos()
     {
         while (true)
@@ -189,12 +198,14 @@ public class GameManager_U : MonoBehaviour
             // Turno del jugador humano
             if (actual == jugador)
             {
+                if (bonusUI != null) bonusUI.SetUsoHabilitado(true);
                 dadoUI.OnRolled = OnJugadorTiroDado;
                 dadoUI.BloquearDado(false);
                 Debug.Log("🎲 Turno del JUGADOR. Lanza el dado.");
             }
             else // Turno del bot
             {
+                if (bonusUI != null) bonusUI.SetUsoHabilitado(false);
                 dadoUI.OnRolled = null;
                 dadoUI.BloquearDado(true);
                 StartCoroutine(TurnoBot(actual));
@@ -212,6 +223,7 @@ public class GameManager_U : MonoBehaviour
 
     void OnJugadorTiroDado(int numero)
     {
+        if (bonusUI != null) bonusUI.SetUsoHabilitado(false);
         dadoUI.OnRolled = null;
         dadoUI.BloquearDado(true);
         StartCoroutine(ResolverTurno(jugador, numero, true));
@@ -219,6 +231,10 @@ public class GameManager_U : MonoBehaviour
 
     IEnumerator TurnoBot(MovePlayer_U bot)
     {
+        // 1) Usar beneficio pendiente (si lo hay) ANTES de tirar
+        yield return StartCoroutine(ApplyPendingBotBenefitIfAny(bot));
+
+        // 2) Ahora sí, tirada normal
         float pre = botPreRollDelay, post = botPostRollDelay;
         int? numero = null;
 
@@ -237,6 +253,53 @@ public class GameManager_U : MonoBehaviour
         Debug.Log($"🤖 BOT {Nombre(bot)} tira {numero.Value}");
         yield return StartCoroutine(ResolverTurno(bot, numero.Value, false));
     }
+
+    private IEnumerator ApplyPendingBotBenefitIfAny(MovePlayer_U bot)
+    {
+        if (!botPendingBenefit.TryGetValue(bot, out var carta)) yield break;
+
+        // Consumimos y limpiamos
+        botPendingBenefit.Remove(bot);
+
+        // Aplicamos el efecto del beneficio SIN disparar efectos de casilla.
+        // OJO: los movimientos causados por beneficios/penalidades no deben
+        // disparar preguntas/otros efectos. (Ya lo controlas desde GameManager,
+        // no desde MovePlayer_U.)
+
+        // Si tienes un helper coroutine en CartaManager_U, úsalo:
+        if (cartaManager != null)
+        {
+            yield return StartCoroutine(cartaManager.EjecutarBeneficioAplicando(bot, carta));
+        }
+        else
+        {
+            // Fallback rápido si no tienes el helper (mínimo viable):
+            switch (carta.accion)
+            {
+                case "Avanza1": yield return bot.JumpMultipleTimes(1); break;
+                case "Avanza2": yield return bot.JumpMultipleTimes(2); break;
+                case "Avanza3": yield return bot.JumpMultipleTimes(3); break;
+                case "TeletransporteAdelante":
+                    yield return bot.JumpMultipleTimes(UnityEngine.Random.Range(5, 10));
+                    break;
+                case "RepiteTurno":
+                    // Nada que mover aquí; marcar repetir tiro si quieres
+                    MarcarRepetirTirada(bot);
+                    break;
+                default:
+                    Debug.Log($"(Bot) Beneficio '{carta.accion}' sin aplicación explícita aquí.");
+                    break;
+            }
+        }
+
+        // Recolocar peones si se movió algo
+        ArrangeAllTiles();
+
+        // Importante: NO resolvemos efectos de la casilla donde haya caído por el beneficio.
+        // Solo se resuelven tras la tirada normal en ResolverTurno(..)
+    }
+
+
 
     IEnumerator ResolverTurno(MovePlayer_U peon, int pasos, bool esHumano)
     {
@@ -261,30 +324,28 @@ public class GameManager_U : MonoBehaviour
                 break;
 
             case Tile_U.TipoCasilla.Pregunta:
-            {
-                bool? resultado = null;
-                cartaManager.HacerPregunta(tile.categoria, esHumano, ProbAciertoBots(), (bool correcta) => resultado = correcta);
-                while (resultado == null) yield return null;
-
-                if (resultado == false)
                 {
-                    yield return StartCoroutine(peon.Retroceder(pasos));
-                    ArrangeAllTiles();
+                    bool? resultado = null;
+                    cartaManager.HacerPregunta(tile.categoria, esHumano, ProbAciertoBots(), (bool correcta) => resultado = correcta);
+                    while (resultado == null) yield return null;
+
+                    if (resultado == false)
+                    {
+                        yield return StartCoroutine(peon.Retroceder(pasos));
+                        ArrangeAllTiles();
+                    }
+
+                    TerminarTurnoORepetir(peon, esHumano);
+                    break;
                 }
 
-                TerminarTurnoORepetir(peon, esHumano);
-                break;
-            }
-
             case Tile_U.TipoCasilla.Beneficio:
-                cartaManager.EjecutarAccionBeneficio(peon);
-                yield return new WaitForSeconds(0.5f);
+                yield return StartCoroutine(cartaManager.EjecutarBeneficioCasilla(peon, esHumano));
                 TerminarTurnoORepetir(peon, esHumano);
                 break;
 
             case Tile_U.TipoCasilla.Penalidad:
-                cartaManager.EjecutarAccionPenalidad(peon);
-                yield return new WaitForSeconds(0.5f);
+                yield return StartCoroutine(cartaManager.EjecutarPenalidadCasilla(peon, esHumano));
                 TerminarTurnoORepetir(peon, esHumano);
                 break;
         }

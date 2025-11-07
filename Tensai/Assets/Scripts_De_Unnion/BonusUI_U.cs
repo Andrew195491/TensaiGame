@@ -5,15 +5,10 @@ using TMPro;
 using System.Collections.Generic;
 
 /// <summary>
-/// Clase que gestiona la interfaz de usuario para las cartas bonus almacenadas.
-/// Muestra hasta 3 cartas y permite ver información detallada y usarlas.
-/// ACTUALIZADO: Compatible con Carta_U y CartaManager_U
+/// UI de cartas bonus almacenadas (sólo info siempre; usar sólo en tu turno y antes de tirar).
 /// </summary>
 public class BonusUI_U : MonoBehaviour
 {
-    // ============================================
-    // SECCIÓN 1: DECLARACIÓN DE VARIABLES
-    // ============================================
     [Header("Slots de almacenamiento")]
     public GameObject storageCard1;
     public GameObject storageCard2;
@@ -26,24 +21,25 @@ public class BonusUI_U : MonoBehaviour
     public Button btnCerrarPanel;
 
     [Header("Referencias del jugador")]
-    public MovePlayer_U jugador; // CAMBIADO: Ahora usa MovePlayer_U
+    public MovePlayer_U jugador;
 
-    private List<GameObject> storageSlots = new List<GameObject>();
+    // === Estado interno ===
+    private readonly List<GameObject> storageSlots = new List<GameObject>();
     private int cartaSeleccionadaIndex = -1;
 
-    // ============================================
-    // SECCIÓN 2: INICIALIZACIÓN
-    // ============================================
+    /// <summary>
+    /// Candado de uso: TRUE solo en tu turno y antes de tirar el dado.
+    /// </summary>
+    private bool puedeUsarAhora = false;
+
     void Awake()
     {
         storageSlots.Add(storageCard1);
         storageSlots.Add(storageCard2);
         storageSlots.Add(storageCard3);
 
-        foreach (var slot in storageSlots)
-            slot.SetActive(false);
-
-        cardExplaining.SetActive(false);
+        foreach (var slot in storageSlots) slot.SetActive(false);
+        if (cardExplaining) cardExplaining.SetActive(false);
 
         if (btnUsarCarta != null)
         {
@@ -58,22 +54,29 @@ public class BonusUI_U : MonoBehaviour
         }
     }
 
-    // ============================================
-    // SECCIÓN 3: ACTUALIZACIÓN DE LA INTERFAZ
-    // ============================================
+    /// <summary>
+    /// Llamar desde GameManager:
+    /// - true  => al empezar el turno del jugador, ANTES de habilitar el dado.
+    /// - false => en cuanto el jugador tira el dado, o durante turnos de bots.
+    /// </summary>
+    public void SetUsoHabilitado(bool habilitar)
+    {
+        puedeUsarAhora = habilitar;
+
+        // Si el panel está abierto, refleja el estado en el botón "Usar"
+        if (cardExplaining && cardExplaining.activeSelf && btnUsarCarta != null)
+            btnUsarCarta.interactable = puedeUsarAhora && cartaSeleccionadaIndex >= 0;
+    }
+
     /// <summary>
     /// Refresca los paneles visibles según la cantidad de cartas almacenadas.
-    /// ACTUALIZADO: Ahora recibe List<Carta_U> en lugar de List<Carta>
     /// </summary>
     public void ActualizarUI(List<Carta_U> cartas)
     {
-        foreach (var slot in storageSlots)
-            slot.SetActive(false);
+        foreach (var slot in storageSlots) slot.SetActive(false);
 
-        if (cardExplaining.activeSelf && cartaSeleccionadaIndex >= cartas.Count)
-        {
+        if (cardExplaining && cardExplaining.activeSelf && cartaSeleccionadaIndex >= cartas.Count)
             CerrarPanelExplicacion();
-        }
 
         for (int i = 0; i < cartas.Count && i < storageSlots.Count; i++)
         {
@@ -83,33 +86,21 @@ public class BonusUI_U : MonoBehaviour
             TextMeshProUGUI txt = slot.GetComponentInChildren<TextMeshProUGUI>();
             if (txt != null)
             {
-                string tipoIcono = cartas[i].accion.Contains("Avanza") || cartas[i].accion == "RepiteTurno" ? "✨" : "⚡";
+                // usa iconos ASCII seguros para evitar warnings de fuentes
+                string tipoIcono = (cartas[i].accion.Contains("Avanza") || cartas[i].accion == "RepiteTurno") ? "[+]" : "[!]";
                 txt.text = $"{tipoIcono} {ObtenerResumenCarta(cartas[i])}";
             }
 
-            Button boton = slot.GetComponent<Button>();
-            if (boton == null)
-                boton = slot.AddComponent<Button>();
-
+            Button boton = slot.GetComponent<Button>() ?? slot.AddComponent<Button>();
             int index = i;
             boton.onClick.RemoveAllListeners();
             boton.onClick.AddListener(() => MostrarInfoCarta(index, cartas[index]));
 
-            EventTrigger trigger = slot.GetComponent<EventTrigger>();
-            if (trigger != null)
-            {
-                Destroy(trigger);
-            }
+            var trigger = slot.GetComponent<EventTrigger>();
+            if (trigger != null) Destroy(trigger);
         }
     }
 
-    // ============================================
-    // SECCIÓN 4: FUNCIONES AUXILIARES
-    // ============================================
-    /// <summary>
-    /// Convierte el tipo de acción de la carta en un texto corto y legible.
-    /// ACTUALIZADO: Ahora recibe Carta_U en lugar de Carta
-    /// </summary>
     private string ObtenerResumenCarta(Carta_U carta)
     {
         return carta.accion switch
@@ -133,53 +124,53 @@ public class BonusUI_U : MonoBehaviour
         };
     }
 
-    // ============================================
-    // SECCIÓN 5: MANEJO DEL PANEL DE INFORMACIÓN
-    // ============================================
-    /// <summary>
-    /// Muestra el panel emergente con información detallada de la carta.
-    /// ACTUALIZADO: Ahora recibe Carta_U en lugar de Carta
-    /// </summary>
     private void MostrarInfoCarta(int index, Carta_U carta)
     {
         cartaSeleccionadaIndex = index;
-        cardExplaining.SetActive(true);
 
-        string tipoIcono = carta.accion.Contains("Avanza") || carta.accion == "RepiteTurno" ? "✨" : "⚡";
-        cardExplainingText.text = $"{tipoIcono} {carta.pregunta}\n\nHaz clic en 'Usar' para activar esta carta";
+        if (cardExplaining) cardExplaining.SetActive(true);
 
-        Debug.Log($"Mostrando información de carta en posición {index}");
+        string tipoIcono = (carta.accion.Contains("Avanza") || carta.accion == "RepiteTurno") ? "[+]" : "[!]";
+        if (cardExplainingText)
+            cardExplainingText.text = $"{tipoIcono} {carta.pregunta}\n\n" +
+                                      (puedeUsarAhora ? "Pulsa 'Usar' para activar esta carta." : "Sólo puedes usar cartas al inicio de tu turno, antes de tirar.");
+
+        // Botón usar solo activo si se puede usar ahora
+        if (btnUsarCarta) btnUsarCarta.interactable = puedeUsarAhora;
     }
 
-    /// <summary>
-    /// Usa la carta que está actualmente seleccionada.
-    /// ACTUALIZADO: Ahora usa CartaManager_U
-    /// </summary>
     private void UsarCartaSeleccionada()
     {
-        if (cartaSeleccionadaIndex < 0)
+        // Enforce del candado por si alguien llama por código
+        if (!puedeUsarAhora)
         {
-            Debug.LogWarning("No hay carta seleccionada");
+            Debug.Log("[BonusUI] No puedes usar cartas ahora. Solo al inicio de tu turno y antes de tirar.");
             return;
         }
 
-        // CAMBIADO: Usa CartaManager_U.instancia en lugar de CartaManager.instancia
+        if (cartaSeleccionadaIndex < 0)
+        {
+            Debug.LogWarning("[BonusUI] No hay carta seleccionada.");
+            return;
+        }
+
         if (CartaManager_U.instancia != null && jugador != null)
         {
             CartaManager_U.instancia.UsarCartaDelStorage(cartaSeleccionadaIndex, jugador);
-            Debug.Log($"Usando carta en posición {cartaSeleccionadaIndex}");
+            Debug.Log($"[BonusUI] Usando carta en posición {cartaSeleccionadaIndex}");
         }
 
         CerrarPanelExplicacion();
+
+        // Opcional: tras usar una carta, puedes seguir usando otras en el mismo turno
+        // Si NO quieres permitirlo, descomenta:
+        // SetUsoHabilitado(false);
     }
 
-    /// <summary>
-    /// Cierra el panel de explicación y reinicia la selección.
-    /// </summary>
     private void CerrarPanelExplicacion()
     {
-        cardExplaining.SetActive(false);
+        if (cardExplaining) cardExplaining.SetActive(false);
         cartaSeleccionadaIndex = -1;
-        Debug.Log("Panel de explicación cerrado");
+        // Mantén el estado de puedeUsarAhora como esté (lo controla GameManager)
     }
 }

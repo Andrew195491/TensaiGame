@@ -3,9 +3,10 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// Permite alternar entre la vista principal del juego y el minimapa en pantalla completa.
-/// Al hacer clic sobre el minimapa, las cámaras intercambian sus vistas.
+/// Alterna entre la vista principal y la del minimapa SOLO cuando se hace clic
+/// DENTRO del RawImage del minimapa. Ignora cualquier clic en otras partes del Canvas.
 /// </summary>
+[RequireComponent(typeof(GraphicRaycaster))]
 public class CameraSwitcher_U : MonoBehaviour, IPointerClickHandler
 {
     [Header("Cámaras")]
@@ -16,7 +17,7 @@ public class CameraSwitcher_U : MonoBehaviour, IPointerClickHandler
     public Camera minimapCamera;
 
     [Header("Renderización UI")]
-    [Tooltip("Imagen UI que muestra el minimapa.")]
+    [Tooltip("Imagen UI que muestra el minimapa (el área clicable).")]
     public RawImage minimapImage;
 
     [Header("Texturas de Renderizado")]
@@ -26,15 +27,50 @@ public class CameraSwitcher_U : MonoBehaviour, IPointerClickHandler
     [Tooltip("Textura usada por la cámara del minimapa cuando está en vista pequeña.")]
     public RenderTexture minimapTexture;
 
-    // Indica si el minimapa está mostrando la vista completa
     private bool isMinimapFullView = false;
 
+    void Awake()
+    {
+        if (minimapImage != null)
+        {
+            // MUY IMPORTANTE: solo el RawImage del minimapa debe ser raycasteable.
+            minimapImage.raycastTarget = true;
+        }
+    }
+
     /// <summary>
-    /// Detecta el clic en la UI y alterna la vista entre las cámaras.
+    /// Recibe el clic del sistema de eventos. Solo alterna si el clic fue sobre el RawImage del minimapa.
     /// </summary>
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (!ClickedInsideMinimap(eventData)) return;
         ToggleCameraView();
+    }
+
+    /// <summary>
+    /// Verifica con precisión si el clic cayó DENTRO del rect del minimapa.
+    /// </summary>
+    private bool ClickedInsideMinimap(PointerEventData eventData)
+    {
+        if (minimapImage == null) return false;
+
+        // 1) El objeto bajo el puntero debe ser EXACTAMENTE el RawImage del minimapa
+        if (eventData.pointerEnter != minimapImage.gameObject)
+        {
+            // Como a veces hay un "Mask" o "Border", hacemos una comprobación geométrica también:
+            return RectTransformUtility.RectangleContainsScreenPoint(
+                minimapImage.rectTransform,
+                eventData.position,
+                eventData.pressEventCamera
+            );
+        }
+
+        // 2) Verificación geométrica extra por seguridad
+        return RectTransformUtility.RectangleContainsScreenPoint(
+            minimapImage.rectTransform,
+            eventData.position,
+            eventData.pressEventCamera
+        );
     }
 
     /// <summary>
@@ -48,27 +84,32 @@ public class CameraSwitcher_U : MonoBehaviour, IPointerClickHandler
 
         if (isMinimapFullView)
         {
-            // ============================
-            // MODO: MINIMAPA PANTALLA COMPLETA
-            // ============================
-            minimapCamera.targetTexture = null;           // Renderiza a pantalla completa
-            mainCamera.targetTexture = mainCameraTexture; // Cámara principal pasa a textura
-            minimapImage.texture = mainCameraTexture;     // Muestra la cámara principal en la UI
+            // Minimapa a pantalla completa
+            if (minimapCamera) minimapCamera.targetTexture = null;           // pantalla
+            if (mainCamera)    mainCamera.targetTexture    = mainCameraTexture; // a textura
+            if (minimapImage)  minimapImage.texture        = mainCameraTexture;
 
-            mainCamera.enabled = false;
-            minimapCamera.enabled = true;
+            if (mainCamera)    mainCamera.enabled = false;
+            if (minimapCamera) minimapCamera.enabled = true;
         }
         else
         {
-            // ============================
-            // MODO: VISTA NORMAL
-            // ============================
-            mainCamera.targetTexture = null;              // Renderiza a pantalla completa
-            minimapCamera.targetTexture = minimapTexture; // Minimapa en su textura
-            minimapImage.texture = minimapTexture;        // Muestra el minimapa en la UI
+            // Vista normal
+            if (mainCamera)    mainCamera.targetTexture    = null;           // pantalla
+            if (minimapCamera) minimapCamera.targetTexture = minimapTexture; // a textura
+            if (minimapImage)  minimapImage.texture        = minimapTexture;
 
-            mainCamera.enabled = true;
-            minimapCamera.enabled = true;
+            if (mainCamera)    mainCamera.enabled = true;
+            if (minimapCamera) minimapCamera.enabled = true;
         }
+    }
+
+    /// <summary>
+    /// Permite forzar la vista deseada desde otros scripts si lo necesitas.
+    /// </summary>
+    public void SetFullView(bool minimapFull)
+    {
+        if (isMinimapFullView == minimapFull) return;
+        ToggleCameraView();
     }
 }

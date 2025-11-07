@@ -24,7 +24,7 @@ public class DiceController_U : MonoBehaviour
     public Button diceButton;
 
     [Header("Referencia del jugador (para movimiento automático opcional)")]
-    public MovePlayer player;
+    public MovePlayer_U player;
 
     // ============================================
     // SECCIÓN 2: CONFIGURACIÓN DEL DADO

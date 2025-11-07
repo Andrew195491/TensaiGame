@@ -3,53 +3,37 @@ using System.Collections;
 using System.Text.RegularExpressions;
 
 /// <summary>
-/// Controla el movimiento del jugador o bot en el tablero de juego.
-/// Soporta:
-/// - Avanzar y retroceder con animación de salto
-/// - Teletransporte directo a una casilla
-/// - Consulta de la casilla actual y su categoría
-/// - Integración con el dado y el sistema de cartas
-/// ACTUALIZADO: Compatible con Tile_U y CartaManager_U
+/// Controla el movimiento del jugador o bot en el tablero.
+/// SOLO mueve. NO resuelve casillas. La resolución la hace GameManager_U
+/// después de un movimiento por dado.
 /// </summary>
 public class MovePlayer_U : MonoBehaviour
 {
-    // ============================================
-    // SECCIÓN 1: REFERENCIAS Y ESTADO
-    // ============================================
-
-    [Header("Referencias")]
-    [Tooltip("Referencia al controlador del dado para bloquearlo durante movimientos.")]
+    [Header("Referencias (opcional)")]
     public DiceController_U dado;
 
-    [Header("Movimiento")]
-    [Tooltip("Altura del salto durante la animación.")]
+    [Header("Animación")]
     public float jumpHeight = 1.5f;
-
-    [Tooltip("Duración de cada salto individual.")]
     public float moveDuration = 0.5f;
 
-    [Header("Estado del jugador")]
-    [Tooltip("Índice actual de la casilla donde se encuentra el jugador.")]
+    [Header("Estado")]
     public int currentIndex = 0;
 
     private Transform[] tiles;
     private bool isMoving = false;
-    private int ultimaCantidadMovida = 0;
 
-    // ============================================
-    // SECCIÓN 2: INICIALIZACIÓN
-    // ============================================
+    /// <summary>
+    /// Si true, al aterrizar NO debe resolverse la casilla (lo usa CartaManager
+    /// para movimientos provocados por beneficios/penalidades).
+    /// </summary>
+    [HideInInspector] public bool ignoreLandingEffects = false;
 
     void Start()
     {
         CargarTilesDesdeTablero();
         if (tiles.Length > 0)
-            transform.position = tiles[currentIndex].position + Vector3.up * 1f;
+            transform.position = tiles[Mathf.Clamp(currentIndex, 0, tiles.Length - 1)].position + Vector3.up;
     }
-
-    // ============================================
-    // SECCIÓN 3: CARGA Y ORDENAMIENTO DE CASILLAS
-    // ============================================
 
     void CargarTilesDesdeTablero()
     {
@@ -65,13 +49,14 @@ public class MovePlayer_U : MonoBehaviour
         for (int i = 0; i < tablero.childCount; i++)
             tiles[i] = tablero.GetChild(i);
 
-        // Ordenar casillas numéricamente según su nombre (Tile_1, Tile_2, etc.)
         System.Array.Sort(tiles, (a, b) =>
         {
             int na = ExtraerNumero(a.name);
             int nb = ExtraerNumero(b.name);
             return na.CompareTo(nb);
         });
+
+        currentIndex = Mathf.Clamp(currentIndex, 0, Mathf.Max(tiles.Length - 1, 0));
     }
 
     int ExtraerNumero(string nombre)
@@ -80,15 +65,15 @@ public class MovePlayer_U : MonoBehaviour
         return int.TryParse(t, out int n) ? n : 0;
     }
 
-    // ============================================
-    // SECCIÓN 4: MOVIMIENTO HACIA ADELANTE
-    // ============================================
-
+    // --------------------------
+    // Mover hacia adelante N
+    // --------------------------
     public IEnumerator JumpMultipleTimes(int cantidad)
     {
+
         if (isMoving || tiles.Length == 0 || cantidad <= 0) yield break;
 
-        ultimaCantidadMovida = cantidad;
+        if (dado != null) dado.BloquearDado(true);
 
         for (int i = 0; i < cantidad; i++)
         {
@@ -96,55 +81,17 @@ public class MovePlayer_U : MonoBehaviour
             yield return JumpTo(tiles[currentIndex].position);
         }
 
-        yield return new WaitForSeconds(0.5f);
-
-        // Determinar tipo de casilla actual y ejecutar acción
-        Tile_U tile = GetCurrentTile(); // CAMBIADO: Tile2 → Tile_U
-        if (tile != null)
-        {
-            // Convertir el tipo de casilla a comportamiento
-            if (tile.tipo == Tile_U.TipoCasilla.Neutral)
-            {
-                // Casilla neutral: no hace nada
-                Debug.Log("🔵 Casilla neutral - Sin acción");
-            }
-            else if (tile.tipo == Tile_U.TipoCasilla.Beneficio)
-            {
-                CartaManager_U.instancia.EjecutarAccionBeneficio(this);
-            }
-            else if (tile.tipo == Tile_U.TipoCasilla.Penalidad)
-            {
-                CartaManager_U.instancia.EjecutarAccionPenalidad(this);
-            }
-            else if (tile.tipo == Tile_U.TipoCasilla.Pregunta)
-            {
-                // Mostrar pregunta según la categoría
-                CartaManager_U.instancia.HacerPregunta(
-                    tile.categoria,
-                    true, // esHumano
-                    0.5f, // probabilidad bot (no aplica aquí)
-                    (correcta) =>
-                    {
-                        if (!correcta)
-                        {
-                            StartCoroutine(Retroceder(ultimaCantidadMovida));
-                        }
-                    }
-                );
-            }
-        }
+        if (dado != null) dado.BloquearDado(false);
     }
 
-    // ============================================
-    // SECCIÓN 5: MOVIMIENTO HACIA ATRÁS
-    // ============================================
-
+    // --------------------------
+    // Retroceder N
+    // --------------------------
     public IEnumerator Retroceder(int pasos)
     {
         if (isMoving || tiles.Length == 0 || pasos <= 0) yield break;
 
-        if (dado != null)
-            dado.BloquearDado(true);
+        if (dado != null) dado.BloquearDado(true);
 
         for (int i = 0; i < pasos; i++)
         {
@@ -152,20 +99,44 @@ public class MovePlayer_U : MonoBehaviour
             yield return JumpTo(tiles[currentIndex].position);
         }
 
-        if (dado != null)
-            dado.BloquearDado(false);
+        if (dado != null) dado.BloquearDado(false);
     }
 
-    // ============================================
-    // SECCIÓN 6: ANIMACIÓN DE SALTO
-    // ============================================
+    // --------------------------
+    // Teletransporte animado
+    // --------------------------
+    public IEnumerator IrACasilla(int indiceCasilla)
+    {
+        if (isMoving || tiles.Length == 0) yield break;
 
+        if (dado != null) dado.BloquearDado(true);
+
+        int destino = Mathf.Clamp(indiceCasilla, 0, tiles.Length - 1);
+        currentIndex = destino;
+        yield return JumpTo(tiles[currentIndex].position);
+
+        if (dado != null) dado.BloquearDado(false);
+    }
+
+    public void TeleportAIndiceSeguro(int indice)
+    {
+        Transform tablero = GameObject.Find("Board")?.transform;
+        if (tablero == null || tablero.childCount == 0) return;
+
+        indice = Mathf.Clamp(indice, 0, tablero.childCount - 1);
+        currentIndex = indice;
+        transform.position = tablero.GetChild(currentIndex).position + Vector3.up;
+    }
+
+    // --------------------------
+    // Helpers
+    // --------------------------
     IEnumerator JumpTo(Vector3 destino)
     {
         isMoving = true;
 
         Vector3 start = transform.position;
-        Vector3 end = destino + Vector3.up * 1f;
+        Vector3 end = destino + Vector3.up;
 
         float t = 0f;
         while (t < moveDuration)
@@ -184,55 +155,16 @@ public class MovePlayer_U : MonoBehaviour
         isMoving = false;
     }
 
-    // ============================================
-    // SECCIÓN 7: TELETRANSPORTE DIRECTO
-    // ============================================
-
-    public IEnumerator IrACasilla(int indiceCasilla)
-    {
-        if (isMoving) yield break;
-        if (dado != null) dado.BloquearDado(true);
-
-        int destino = Mathf.Clamp(indiceCasilla, 0, tiles.Length - 1);
-        currentIndex = destino;
-
-        yield return JumpTo(tiles[currentIndex].position);
-
-        Debug.Log($"🏠 Jugador movido a casilla {destino}");
-
-        if (dado != null) dado.BloquearDado(false);
-    }
-
-    public void TeleportAIndiceSeguro(int indice)
-    {
-        Transform tablero = GameObject.Find("Board")?.transform;
-        if (tablero == null || tablero.childCount == 0) return;
-
-        indice = Mathf.Clamp(indice, 0, tablero.childCount - 1);
-        currentIndex = indice;
-        transform.position = tablero.GetChild(currentIndex).position + Vector3.up * 1f;
-    }
-
-    // ============================================
-    // SECCIÓN 8: CONSULTAS Y UTILIDADES
-    // ============================================
-
-    public Tile_U GetCurrentTile() // CAMBIADO: Tile2 → Tile_U
+    public Tile_U GetCurrentTile()
     {
         if (tiles == null || tiles.Length == 0) return null;
         var t = tiles[currentIndex];
-        return t != null ? t.GetComponent<Tile_U>() : null; // CAMBIADO
+        return t ? t.GetComponent<Tile_U>() : null;
     }
 
-    public Tile_U.Categoria CategoriaActual() // CAMBIADO: Tile2 → Tile_U
+    public Tile_U.Categoria CategoriaActual()
     {
-        Tile_U tile = GetCurrentTile(); // CAMBIADO
-        return tile != null ? tile.categoria : Tile_U.Categoria.Historia; // CAMBIADO
-    }
-
-    public void ResponderCarta(bool correcta)
-    {
-        if (!correcta)
-            StartCoroutine(Retroceder(ultimaCantidadMovida));
+        var tile = GetCurrentTile();
+        return tile != null ? tile.categoria : Tile_U.Categoria.Historia;
     }
 }
