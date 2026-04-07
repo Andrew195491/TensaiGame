@@ -50,6 +50,13 @@ public class GameManager_U : MonoBehaviour
     [Header("Distribución en Casilla")]
     public float tileSeparationRadius = 0.35f;
 
+    // 
+    [Header("UI Helpers")]
+    public HandIndicator_U handIndicator;
+
+
+
+
     // ============================================
     // SECCIÓN 2: VARIABLES DE JUEGO
     // ============================================
@@ -202,6 +209,18 @@ public class GameManager_U : MonoBehaviour
                 dadoUI.OnRolled = OnJugadorTiroDado;
                 dadoUI.BloquearDado(false);
                 Debug.Log("🎲 Turno del JUGADOR. Lanza el dado.");
+                
+                // NUEVO: Mostrar indicador de mano (HandIndicator)
+                if (handIndicator != null && dadoUI.diceButton != null)
+                {
+                    Debug.Log("📢 LLAMANDO A INDICADOR DE MANO");
+                    Debug.Log("handIndicator = " + (handIndicator != null));
+                    Debug.Log("dadoUI = " + (dadoUI != null));
+                    Debug.Log("diceButton = " + (dadoUI != null && dadoUI.diceButton != null));
+
+                    handIndicator.ShowHandIndicator(dadoUI.diceButton.GetComponent<RectTransform>());
+                }
+
             }
             else // Turno del bot
             {
@@ -223,6 +242,10 @@ public class GameManager_U : MonoBehaviour
 
     void OnJugadorTiroDado(int numero)
     {
+        // NUEVO: Ocultar indicador de mano
+        if (handIndicator != null) handIndicator.HideHandIndicator(); // NUEVO
+
+
         if (bonusUI != null) bonusUI.SetUsoHabilitado(false);
         dadoUI.OnRolled = null;
         dadoUI.BloquearDado(true);

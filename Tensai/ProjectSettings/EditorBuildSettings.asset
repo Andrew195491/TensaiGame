@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/SpecialCards_Scene.unity
+    guid: 303caf0f8ad48462c8b3f90b7184295b
   m_configObjects:
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 746dac8fbbea2bd4c985b3ee6dd1c07b, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: a9eee800243d6834ca629add49eee3ed, type: 2}
